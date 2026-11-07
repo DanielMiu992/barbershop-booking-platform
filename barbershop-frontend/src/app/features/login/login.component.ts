@@ -44,8 +44,6 @@ export class LoginComponent {
 
     //   console.log("==|| isSubmitted || ==", this.isSubmitted);
     // });
-    this.loginForm.patchValue({email: 'admin@barbershop.com'})
-    this.loginForm.patchValue({password: 'parolasupursecreta'})
     
   }
 

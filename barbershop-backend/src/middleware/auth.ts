@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-// const JWT_SECRET = process.env.JWT_SECRET || 'secret_default';
-
 // Extindem interfața Request din Express pentru a recunoaște proprietatea user
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -13,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
 
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const JWT_SECRET = process.env.JWT_SECRET || 'secret_default';
+  const JWT_SECRET = process.env.JWT_SECRET as string; // checked at startup in server.ts
 
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Extrage string-ul de după "Bearer "

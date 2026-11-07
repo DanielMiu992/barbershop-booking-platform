@@ -27,6 +27,14 @@ import { startAvatarJob } from './jobs/orphan-avatars.job';
 
 // dotenv.config();
 
+// Required environment variables: stop early if any is missing
+const REQUIRED_ENV = ['DATABASE_URL', 'JWT_SECRET'];
+const missingEnv = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error(`Lipsesc variabilele de mediu: ${missingEnv.join(', ')}. Completează fișierul .env.`);
+  process.exit(1);
+}
+
 const app = express();
 const port = process.env.PORT || 3000;
 

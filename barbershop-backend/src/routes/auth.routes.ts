@@ -10,7 +10,7 @@ import z from 'zod';
 import rateLimit from 'express-rate-limit';
 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_default';
+const JWT_SECRET = process.env.JWT_SECRET as string; // checked at startup in server.ts
 
 const router = Router();
 
