@@ -1,0 +1,315 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-card>
+  <ng-template #title> 
+    <p class="mt-1 header-card uppercase font-semibold text-xl text-slate-900" >⚙️ Management Catalog Servicii - Specializari</p>
+  </ng-template>
+  
+  <!-- <ng-template #subtitle>
+    <div class="flex flex-row justify-between items-center">
+      <p class="text-slate-500 m-0">Adaugă, editează sau dezactivează serviciile oferite în cadrul salonului.</p>
+      <p-button (onClick)="openEditDialog()" label="Serviciu Nou" 
+        icon="fa-solid fa-plus" 
+        severity="success" 
+        size="small"
+      ></p-button>
+    </div>
+  </ng-template> -->
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0" class="text-sm font-semibold uppercase">Servicii</p-tab>
+      <p-tab value="1" class="text-sm font-semibold uppercase">Specialitati</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <!-- <div class="flex flex-col gap-2 mb-2">
+          <p class="mt-1 header-card uppercase font-semibold text-xl text-slate-900" >⚙️ Management Catalog Servicii & Specializari</p>
+          <div class="flex flex-row justify-between items-center">
+            <p class="text-slate-500 m-0">Adaugă, editează sau dezactivează serviciile oferite în cadrul salonului.</p>
+            <p-button (onClick)="openEditDialog()" label="Serviciu Nou" 
+              icon="fa-solid fa-plus" 
+              severity="success" 
+              size="small"
+            ></p-button>
+          </div>
+
+        </div> -->
+
+        <div class="flex flex-row gap-1 mb-6 bg-slate-50 p-4 border border-solid border-slate-200 border-round items-end justify-between">
+          <div class="flex flex-row flex-wrap gap-2 items-center">
+            @if(filtersAreApplied()){
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Filtre active:</span>
+              <div class="flex flex-row gap-2 flex-wrap items-center">
+                @if(appliedfilters.status){
+                  <p-tag 
+                    [value]="'Status: ' + appliedfilters.status.label" 
+                    severity="info" 
+                    styleClass="statusTag"
+                  ></p-tag>
+                }
+              </div>
+
+              <div class="flex flex-row gap-2 flex-wrap items-center">
+                @if(appliedfilters.max_price){
+                  <p-tag 
+                    [value]="'Pret maxim: ' + appliedfilters.max_price + ' RON'" 
+                    severity="info" 
+                    styleClass="statusTag"
+                  ></p-tag>
+                }
+              </div>
+            }
+          </div>
+          <div class="flex flex-row gap-1">
+            <p-button (onClick)="openEditDialog()" 
+              icon="fa-solid fa-plus" 
+              severity="success" 
+              size="small"
+              pTooltip="Serviciu Nou" 
+              tooltipPosition="bottom"
+            ></p-button>
+            <p-button (onClick)="downloadPdfReport()" 
+              icon="pi pi-file-check" 
+              severity="success"
+              size="small"
+              pTooltip="Descarcă raport PDF"
+              tooltipPosition="bottom"
+            ></p-button>
+
+            <p-button (onClick)="displayFilterDialog.set(true)" label="Filtrare avansata" 
+              icon="fa-solid fa-filter" 
+              [severity]="filtersAreApplied() ? 'success' : 'info'" 
+              size="small"
+            />
+            <p-button (onClick)="clearFilters(dtsv)" label="Reseteaza filtrele" 
+              icon="fa-solid fa-filter-circle-xmark" 
+              severity="danger" 
+              size="small"
+            />
+            <p-iconfield iconPosition="left">
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input type="text" pInputText [formControl]="$any(filterForm).get('service_name')" placeholder="Caută..." pSize="small"/>
+            </p-iconfield>
+          </div>    
+        </div>
+        <p-table 
+          #dtsv
+          [value]="adminServicesService.adminSv()" 
+          [lazy]="true"
+          [totalRecords]="totalRecordSv()"
+          [loading]="loading()"
+          (onLazyLoad)="loadServicesLazy($event)"
+          [paginator]="true" 
+          [rows]="5" 
+          [responsiveLayout]="'scroll'"
+          stripedRows
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Inregistrarile de la {first} la {last} din totalul de {totalRecords}"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>#</th>
+              <th pSortableColumn="name">
+                Denumire Serviciu <p-sortIcon field="name" id="hd" />
+              </th>
+              <th pSortableColumn="duration_minutes">
+                Durată <p-sortIcon field="duration_minutes" id="hd" />
+              </th>
+              <th pSortableColumn="price">
+                Preț standard <p-sortIcon field="price" id="hd" />
+              </th>
+              <th pSortableColumn="is_active">
+                Status <p-sortIcon field="is_active" id="hd" />
+              </th>
+              <th style="text-align: center;">Acțiuni</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-service let-rowIndex="rowIndex">
+            <tr>
+              <td class="text-sm font-semibold">{{rowIndex + 1}}</td>
+              <td class="font-semibold">{{ service.name }}</td>
+              <td>{{ service.duration_minutes }} min</td>
+              <td>{{ service.price }} RON</td>
+              <td>
+                <!-- <p-tag
+                  [value]="service.is_active ? 'Activ' : 'Inactiv'" 
+                  [severity]="service.is_active ? 'success' : 'danger'"
+                  styleClass="statusTag"
+                ></p-tag> -->
+                <p-tag 
+                  [value]="service.is_active ? 'activ' : 'inactiv'" 
+                  [severity]="service.is_active ? 'success' : 'danger'"
+                  [style]="{ background: getBackground(service.is_active), color: 'var(--p-button-primary-color)', weight: 'var(--p-button-label-font-weight)' }"
+                  styleClass="statusTag text-xs"
+                ></p-tag>
+                
+              </td>
+              <td>
+                <div class="flex flex-row gap-2 justify-center">
+                  <p-button (onClick)="openEditDialog(service)" 
+                    icon="fa-regular fa-pen-to-square" 
+                    severity="primary" 
+                    size="small"
+                    pTooltip="Editează"
+                    tooltipPosition="bottom" 
+                    [text]="true" 
+                    styleClass="!p-0 !w-6 !h-6"
+                  ></p-button>
+                  <p-button (onClick)="toggleStatus(service, dtsv)" 
+                    [icon]="service.is_active ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'" 
+                    [severity]="service.is_active ? 'warn' : 'success'" 
+                    size="small"
+                    [pTooltip]="service.is_active ? 'Dezactivează' : 'Activează'" 
+                    tooltipPosition="bottom"
+                    [text]="true" 
+                    styleClass="!p-0 !w-6 !h-6"
+                  ></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center p-8">
+                Nu s-a găsit nicio inregistrare în baza de date.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+      <p-tabpanel value="1">
+        <div class="flex flex-row gap-1 mb-6 bg-slate-50 p-4 border border-solid border-slate-200 border-round items-end justify-end">
+            <p-button (onClick)="openEditSpDialog()" 
+              icon="fa-solid fa-plus" 
+              severity="success" 
+              size="small"
+              pTooltip="Specialitate Noua" 
+              tooltipPosition="bottom"
+            ></p-button>
+
+          <p-iconfield iconPosition="left">
+            <p-inputicon class="pi pi-search"></p-inputicon>
+            <input type="text" pInputText [formControl]="$any(filterFormSp).get('search_query')" placeholder="Caută..." pSize="small"/>
+          </p-iconfield>
+            
+        </div>
+
+        <p-table 
+          #dtsp
+          [value]="adminServicesService.adminSp()" 
+          [lazy]="true"
+          [totalRecords]="totalRecordSp()"
+          [loading]="loading()"
+          (onLazyLoad)="loadSpecialtiesLazy($event)"
+          [paginator]="true" 
+          [rows]="5" 
+          [responsiveLayout]="'scroll'"
+          stripedRows
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Inregistrarile de la {first} la {last} din totalul de {totalRecords}"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>#</th>
+              <th>Specialitate</th>
+              <th>Status</th>
+              <th style=" text-align: center; width: 150px;">Actiuni</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-sp let-rowIndex="rowIndex">
+            <tr>
+              <td class="text-sm font-semibold">{{rowIndex + 1}}</td>
+              <td class="text-sm font-semibold">{{sp.name}}</td>
+              <td>
+                <p-tag 
+                  [value]="sp.is_active ? 'activ' : 'inactiv'" 
+                  [severity]="sp.is_active ? 'success' : 'danger'"
+                  [style]="{ background: getBackground(sp.is_active), color: 'var(--p-button-primary-color)', weight: 'var(--p-button-label-font-weight)' }"
+                  styleClass="statusTag text-xs"
+                ></p-tag>
+              </td>
+              <td>
+                <div class="flex flex-row gap-2 justify-center">
+                  <p-button (onClick)="openEditSpDialog(sp)" 
+                    icon="fa-regular fa-pen-to-square" 
+                    severity="primary" 
+                    size="small"
+                    pTooltip="Editează"
+                    tooltipPosition="bottom" 
+                    [text]="true" 
+                    styleClass="!p-0 !w-6 !h-6"
+                  ></p-button>
+
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+</p-card>
+
+<p-dialog header="Filtrare avansata" 
+  [(visible)]="displayFilterDialog" 
+  [modal]="true" 
+  [style]="{ width: '350px', backgroundColor: 'rgb(248 250 252 / var(--tw-bg-opacity, 1))' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+  <p-card styleClass="!overflow-visible">
+    <form [formGroup]="filterForm">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Status:</label>
+          <p-select formControlName="status" placeholder="Selectează status"
+            [options]="statusOptions" 
+            optionLabel="label" 
+            size="small"
+            [fluid]="true" 
+            [appendTo]="'body'"
+          ></p-select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Preț Maxim (RON):</label>
+          <input pInputText formControlName="max_price" placeholder="Ex: 100" 
+            type="number" 
+            pSize="small"
+            [fluid]="true" 
+          />
+        </div>
+      </div>
+    </form>
+  </p-card>
+  <ng-template #footer>
+    <p-button (onClick)="displayFilterDialog.set(false);" label="Inchide" 
+      severity="secondary" 
+      size="small"
+    ></p-button>
+    <p-button (onClick)="applyFilters(dtsv)" label="Aplica filtrele" 
+      severity="success"        
+      size="small"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<app-add-service-dialog
+  #addServiceDialog
+  [(visible)]="displayDialog"
+  [isEditModeDialog]="isEditMode()"
+  (onSaved)="dtsv.reset(); loading.set(false)"
+  (onCancel)="loading.set(false)"
+></app-add-service-dialog>
+
+
+<app-add-specialty-dialog
+  #addSpDialog
+  [(visibleSpDialog)]="displayDialogSp"
+  [isEditModeSpDialog]="isEditModeSp()"
+  (onSavedSp)="dtsp.reset(); loading.set(false)"
+  (onCancelSp)="loading.set(false)"
+></app-add-specialty-dialog>

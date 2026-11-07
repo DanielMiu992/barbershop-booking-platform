@@ -1,0 +1,80 @@
+<!--     
+    [header]="isEditMode() ? '✏️ Editează Serviciul' : '➕ Adaugă Serviciu Nou'" 
+    [(visible)]="displayDialog" 
+ -->
+
+<p-dialog 
+    [header]="isEditModeDialog() ? '✏️ Editează Serviciul' : '➕ Adaugă Serviciu Nou'" 
+    [(visible)]="visible"
+    [modal]="true" 
+    [style]="{ width: '400px' }" 
+    [draggable]="false" 
+    [resizable]="false"
+    (onHide)="onCancel.emit(); setForm.reset();"
+>
+    <form [formGroup]="setForm" (ngSubmit)="saveService()" >
+        <div class="flex flex-col gap-4 mt-2">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Nume Serviciu:</label>
+                <input pInputText formControlName="name"
+                    type="text" 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.name?.invalid && (fsc.name?.dirty || fsc.name?.touched)}"
+                    pSize="small"
+                />
+            </div>
+            @if (fsc.name?.invalid && (fsc.name?.dirty || fsc.name?.touched) && fsc.name?.hasError('required')){
+                <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+            }
+            @if (fsc.name?.invalid && (fsc.name?.dirty || fsc.name?.touched) && fsc.name?.hasError('specialChars')){
+                <p-message severity="error" variant="simple" size="small">Campul "Nume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+            }
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Preț (RON):</label>
+                <input pInputText  formControlName="price"
+                    type="number" 
+                    placeholder="30" 
+                    [fluid]="true" 
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.price?.invalid && (fsc.price?.dirty || fsc.price?.touched)}"
+                    pSize="small"
+                />
+                @if (fsc.price?.invalid && (fsc.price?.dirty || fsc.price?.touched) && fsc.price?.hasError('required')){
+                <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                }
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Durată (minute):</label>
+                <input pInputText formControlName="duration_minutes"
+                    type="number" 
+                    placeholder="50" 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.duration_minutes?.invalid && (fsc.duration_minutes?.dirty || fsc.duration_minutes?.touched)}"
+                    pSize="small"
+                />
+                @if (fsc.duration_minutes?.invalid && (fsc.duration_minutes?.dirty || fsc.duration_minutes?.touched) && fsc.duration_minutes?.hasError('required')){
+                <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                }
+                
+            </div>
+            <div class="flex flex-row gap-1 justify-end ">
+                <p-button 
+                    label="Anulează" 
+                    severity="secondary" 
+                    [text]="true" 
+                    (onClick)="onCancel.emit(); visible.set(false)"
+                    size="small"
+                ></p-button>
+                <!-- (onClick)="displayDialog = false"  -->
+                <p-button 
+                    type="submit"
+                    label="Salvează" 
+                    severity="success" 
+                    size="small"
+                    [loading]="isSavingService()"
+                ></p-button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

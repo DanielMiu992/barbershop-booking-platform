@@ -1,0 +1,359 @@
+
+<p-dialog 
+    [header]="isEditModeDialog() ? '✏️ Editează Profil Frizer' : '➕ Adaugă Frizer Nou'"  
+    [(visible)]="visible" 
+    [modal]="true" 
+    [style]="{ width: '400px', backgroundColor: 'rgb(248 250 252 / var(--tw-bg-opacity, 1))' }" 
+    [draggable]="false" 
+    [resizable]="false"
+    (onHide)="onCancel.emit(); registerForm.reset();"
+>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="saveBarber()">
+        <div class="flex flex-col gap-4 mt-2">
+            <p-card styleClass="!overflow-visible">
+                <div class="flex flex-col gap-4 mt-2">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm font-semibold text-slate-700">Nume</label>
+                            <input formControlName="first_name"
+                                pInputText 
+                                type="text" 
+                                [fluid]="true"
+                                [ngClass]="{'ng-invalid ng-dirty': fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched)}"
+                                pSize="small"
+                            />
+                            @if (fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched) && fsc.first_name?.hasError('required')){
+                                <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                            }
+                            @if (fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched) && fsc.first_name?.hasError('specialChars')){
+                                <p-message severity="error" variant="simple" size="small">Campul "Nume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                            }
+
+                        </div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm font-semibold text-slate-700">Prenume</label>
+                            <input formControlName="last_name"
+                                pInputText 
+                                type="text" 
+                                [fluid]="true" 
+                                [ngClass]="{'ng-invalid ng-dirty': fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched)}"
+                                pSize="small"
+                            />
+                            @if (fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched) && fsc.last_name?.hasError('required')){
+                                <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                            }
+
+                            @if (fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched) && fsc.last_name?.hasError('specialChars')){
+                                <p-message severity="error" variant="simple" size="small">Campul "Prenume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-semibold text-slate-700">Email</label>
+                        <input pInputText formControlName="email" 
+                            type="email" 
+                            name="email" 
+                            [fluid]="true" 
+                            [ngClass]="{'ng-invalid ng-dirty': fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched)}"
+                            pSize="small"
+                        />
+                        @if (fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched) && fsc.email?.hasError('required')){
+                            <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                        }
+
+                        @if (fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched) && fsc.email?.hasError('email')){
+                            <p-message severity="error" variant="simple" size="small">Adresa de mail invalida</p-message>                        
+                        }
+                                
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-semibold text-slate-700">Telefon</label>
+                        <input pInputText formControlName="phone" 
+                            type="text" 
+                            name="phone" 
+                            [ngClass]="{'ng-invalid ng-dirty': fsc.phone?.invalid && (fsc.phone?.dirty || fsc.phone?.touched)}"
+                            pSize="small"
+                        />
+                        @if (fsc.phone?.invalid && (fsc.phone?.dirty || fsc.phone?.touched) && fsc.phone?.hasError('invalidRoMobile')){
+                            <p-message severity="error" variant="simple" size="small">Numar de telefon invalid</p-message>                        
+                        }
+
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-semibold text-slate-700">Parolă</label>
+                        <p-password formControlName="password" 
+                            name="password" 
+                            [toggleMask]="true" 
+                            [fluid]="true"
+                            [ngClass]="{'ng-invalid ng-dirty': fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched)}"
+                            size="small"
+                        ></p-password>
+
+                        @if (fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched) && fsc.password?.hasError('required')){
+                            <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                        }
+
+                        @if (fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched) && fsc.password?.hasError('passwordStrength')){
+                        <p-message severity="error" variant="simple" size="small">
+                            <div class="flex flex-col gap-y-1">
+                            Parola trebuie sa contina:
+                            <ul style="list-style-type: none; padding-left: 0; font-size: 14px;">
+                                <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasValidLength ? 'green' : 'red'">
+                                    {{ fsc.password?.errors?.['passwordStrength'].hasValidLength ? '&#10003;' : '&#10005;' }}
+                                    Minim 10 caractere
+                                </li>
+                                <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasUpperCase ? 'green' : 'red'">
+                                    {{ fsc.password?.errors?.['passwordStrength'].hasUpperCase ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o literă mare (A-Z)
+                                </li>
+                                <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasLowerCase ? 'green' : 'red'">
+                                    {{ fsc.password?.errors?.['passwordStrength'].hasLowerCase ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o literă mică (a-z)                 
+                                </li>
+                                <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasNumeric ? 'green' : 'red'">
+                                    {{ fsc.password?.errors?.['passwordStrength'].hasNumeric ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o cifră (0-9)
+                                </li>
+                                <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasSpecialChar ? 'green' : 'red'">
+                                    {{ fsc.password?.errors?.['passwordStrength'].hasSpecialChar ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin un caracter special (ex: &#64;, #, $, !)
+                                </li>
+                            </ul>
+                            </div>
+                        </p-message>   
+                        }
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-semibold text-slate-700">Confirmare parolă</label>
+                        <p-password formControlName="confirm_password" 
+                            name="password" 
+                            [toggleMask]="true" 
+                            [fluid]="true"
+                            [ngClass]="{'ng-invalid ng-dirty': fsc.confirm_password?.invalid && (fsc.confirm_password?.dirty || fsc.confirm_password?.touched)}"
+                            size="small"
+                        ></p-password>
+
+                        @if (fsc.confirm_password?.invalid && (fsc.confirm_password?.dirty || fsc.confirm_password?.touched) && fsc.confirm_password?.hasError('passwordMismatch')){
+                            <p-message severity="error" variant="simple" size="small">Parolele introduse nu coincid</p-message>                        
+                        }
+
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-slate-600">Imagine Profil (Opțional)</label>
+
+                        <div class="flex flex-row justify-between items-center gap-3">
+                            @if (avatarPreview()) {
+
+                            <p-avatar [image]="avatarPreview()" size="xlarge" shape="circle" />
+                            } @else {
+                            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center border">
+                                <i class="fa-solid fa-user text-slate-400 text-xl"></i>
+                            </div>
+                            }
+
+                            <p-fileupload
+                                mode="basic"
+                                chooseLabel="Incarca imagine"
+                                chooseIcon="fa-solid fa-upload"
+                                accept="image/png,image/jpeg,image/webp"
+                                [maxFileSize]="2000000"
+                                [auto]="true"
+                                [customUpload]="true"
+                                (uploadHandler)="onAvatarSelected($event)"
+                                [disabled]="uploadingAvatar()"
+                            />
+
+                            @if (uploadingAvatar()) {
+                                <p-progressSpinner strokeWidth="4" [style]="{ width: '24px', height: '24px' }" />
+                            }
+                        </div>
+
+                        @if (uploadError()) {
+                            <small class="text-red-500">{{ uploadError() }}</small>
+                        }
+                    </div>                    
+                </div>
+            </p-card>
+            <div class="flex flex-row gap-1 justify-end ">
+                <p-button 
+                    label="Inchide" 
+                    severity="secondary" 
+                    [text]="true" 
+                    (onClick)="onCancel.emit(); visible.set(false)"
+                    size="small"
+                ></p-button>
+                <p-button 
+                    type="submit"
+                    label="Salvează" 
+                    severity="success" 
+                    size="small"
+                    [loading]="isSavingBarber()"
+                ></p-button>
+            </div>            
+        </div>
+    </form>    
+    
+</p-dialog>
+
+
+    <!-- <form [formGroup]="registerForm" (ngSubmit)="saveBarber()">
+        <div class="flex flex-col gap-4 mt-2">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-slate-700">Nume</label>
+                    <input formControlName="first_name"
+                        pInputText 
+                        type="text" 
+                        [fluid]="true"
+                        [ngClass]="{'ng-invalid ng-dirty': fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched)}"
+                        pSize="small"
+                    />
+                    @if (fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched) && fsc.first_name?.hasError('required')){
+                        <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+                    @if (fsc.first_name?.invalid && (fsc.first_name?.dirty || fsc.first_name?.touched) && fsc.first_name?.hasError('specialChars')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Nume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                    }
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-slate-700">Prenume</label>
+                    <input formControlName="last_name"
+                        pInputText 
+                        type="text" 
+                        [fluid]="true" 
+                        [ngClass]="{'ng-invalid ng-dirty': fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched)}"
+                        pSize="small"
+                    />
+                    @if (fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched) && fsc.last_name?.hasError('required')){
+                        <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+
+                    @if (fsc.last_name?.invalid && (fsc.last_name?.dirty || fsc.last_name?.touched) && fsc.last_name?.hasError('specialChars')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Prenume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                    }
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm">Email:</label>
+                <input pInputText formControlName="email" 
+                    type="email" 
+                    name="email" 
+                    [fluid]="true" 
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched)}"
+                    pSize="small"
+                />
+                @if (fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched) && fsc.email?.hasError('required')){
+                    <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                }
+
+                @if (fsc.email?.invalid && (fsc.email?.dirty || fsc.email?.touched) && fsc.email?.hasError('email')){
+                    <p-message severity="error" variant="simple" size="small">Adresa de mail invalida</p-message>                        
+                }
+                        
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm">Telefon:</label>
+                <input pInputText formControlName="phone" 
+                    type="text" 
+                    name="phone" 
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.phone?.invalid && (fsc.phone?.dirty || fsc.phone?.touched)}"
+                    pSize="small"
+                />
+                @if (fsc.phone?.invalid && (fsc.phone?.dirty || fsc.phone?.touched) && fsc.phone?.hasError('invalidRoMobile')){
+                    <p-message severity="error" variant="simple" size="small">Numar de telefon invalid</p-message>                        
+                }
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm">Parolă:</label>
+                <p-password formControlName="password" 
+                    name="password" 
+                    [toggleMask]="true" 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched)}"
+                    size="small"
+                ></p-password>
+
+                @if (fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched) && fsc.password?.hasError('required')){
+                    <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                }
+
+                @if (fsc.password?.invalid && (fsc.password?.dirty || fsc.password?.touched) && fsc.password?.hasError('passwordStrength')){
+                <p-message severity="error" variant="simple" size="small">
+                    <div class="flex flex-col gap-y-1">
+                    Parola trebuie sa contina:
+                    <ul style="list-style-type: none; padding-left: 0; font-size: 14px;">
+                        <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasValidLength ? 'green' : 'red'">
+                            {{ fsc.password?.errors?.['passwordStrength'].hasValidLength ? '&#10003;' : '&#10005;' }}
+                            Minim 10 caractere
+                        </li>
+                        <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasUpperCase ? 'green' : 'red'">
+                            {{ fsc.password?.errors?.['passwordStrength'].hasUpperCase ? '&#10003;' : '&#10005;' }}
+                            Cel puțin o literă mare (A-Z)
+                        </li>
+                        <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasLowerCase ? 'green' : 'red'">
+                            {{ fsc.password?.errors?.['passwordStrength'].hasLowerCase ? '&#10003;' : '&#10005;' }}
+                            Cel puțin o literă mică (a-z)                 
+                        </li>
+                        <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasNumeric ? 'green' : 'red'">
+                            {{ fsc.password?.errors?.['passwordStrength'].hasNumeric ? '&#10003;' : '&#10005;' }}
+                            Cel puțin o cifră (0-9)
+                        </li>
+                        <li [style.color]="fsc.password?.errors?.['passwordStrength'].hasSpecialChar ? 'green' : 'red'">
+                            {{ fsc.password?.errors?.['passwordStrength'].hasSpecialChar ? '&#10003;' : '&#10005;' }}
+                            Cel puțin un caracter special (ex: &#64;, #, $, !)
+                        </li>
+                    </ul>
+                    </div>
+                </p-message>   
+                }
+
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm">Confirmare parolă:</label>
+                <p-password formControlName="confirm_password" 
+                    name="password" 
+                    [toggleMask]="true" 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': fsc.confirm_password?.invalid && (fsc.confirm_password?.dirty || fsc.confirm_password?.touched)}"
+                    size="small"
+                ></p-password>
+
+                @if (fsc.confirm_password?.invalid && (fsc.confirm_password?.dirty || fsc.confirm_password?.touched) && fsc.confirm_password?.hasError('passwordMismatch')){
+                    <p-message severity="error" variant="simple" size="small">Parolele introduse nu coincid</p-message>                        
+                }
+
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">URL Imagine Profil (Opțional):</label>
+                <input formControlName="avatar_url"
+                    pInputText 
+                    type="text" 
+                    placeholder="https://example.com" 
+                    [fluid]="true"
+                    pSize="small" 
+                />
+            </div>
+
+            <div class="flex flex-row gap-1 justify-end ">
+                <p-button 
+                    label="Anulează" 
+                    severity="secondary" 
+                    [text]="true" 
+                    (onClick)="onCancel.emit(); visible.set(false)"
+                    size="small"
+                ></p-button>
+                <p-button 
+                    type="submit"
+                    label="Salvează" 
+                    severity="success" 
+                    size="small"
+                    [loading]="isSavingBarber()"
+                ></p-button>
+            </div>            
+        </div>
+    </form>     -->

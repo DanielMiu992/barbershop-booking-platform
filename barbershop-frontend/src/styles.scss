@@ -1,0 +1,119 @@
+
+@import "primeicons/primeicons.css";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+// @import "primeicons/primeicons";
+
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+
+// @font-face {
+//     font-family: 'Montserrat';
+//     /* Folosim fișierul variabil */
+//     src: url('./assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf') format('truetype-variations'),
+//          url('./assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+    
+//     /* Îi spunem browserului că acest fișier suportă orice grosime între 100 și 900 */
+//     font-weight: 100 900; 
+//     font-style: normal;
+// }
+
+
+$fonts-path: './assets/fonts';
+
+@font-face {
+  font-family: 'Primary';
+  
+  src: url('#{$fonts-path}/raleway/Raleway-VariableFont_wght.woff2') format('woff2-variations'),
+       url('#{$fonts-path}/raleway/Raleway-VariableFont_wght.woff2') format('woff2');
+  
+  font-weight: 100 900; 
+  font-style: normal;
+  font-display: swap;
+}
+
+
+
+@font-face {
+  font-family: 'Secondary';
+  src: url('#{$fonts-path}/playfair/PlayfairDisplay-VariableFont_wght.woff2') format('woff2-variations'),
+       url('#{$fonts-path}/playfair/PlayfairDisplay-VariableFont_wght.woff2') format('woff2');
+  font-weight: 400 900; // Playfair variabil suportă de obicei grosimi de la 400 la 900
+  font-style: normal;
+  font-display: swap;
+}
+
+// @font-face {
+//     font-family: 'Raleway';
+//     src: url('./assets/fonts/raleway/Raleway-VariableFont_wght.ttf') format('truetype-variations'),
+//          url('./assets/fonts/raleway/Raleway-VariableFont_wght.ttf') format('truetype');
+//     font-weight: 100 900; /* Suportă toate grosimile, de la foarte subțire la foarte îngroșat */
+//     font-style: normal;
+// }
+
+
+
+
+
+// :root {
+//     /* Definim variabila pentru tot proiectul */
+//     --font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+// }
+
+:root {
+    --font-primary: 'Primary', system-ui, -apple-system, sans-serif;
+    --font-secondary: 'Secondary', Georgia, serif; // Adăugăm Georgia ca rezervă
+
+    --unit-32: 4rem;
+}
+
+
+body {
+    margin: 0;
+    // font-family:var(--font-family, system-ui, -apple-system, sans-serif);
+    font-family:var(--font-primary);
+    background-color: #f8f9fa;
+}
+
+.header-card {
+    font-family:var(--font-secondary);
+}
+
+
+.statusTag.p-tag {
+    font-size: 0.75rem; /* Ajustează dimensiunea fontului după preferință */
+}
+
+
+#stp1.p-steppanels{
+  padding: 0.875rem 0rem 1.125rem 0.5rem !important;
+}
+
+// #toggle-sp .p-toggleswitch-slider{
+//     background: var(--p-red-300);
+// }
+
+// #toggle-sp .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover) .p-toggleswitch-slider {
+//     background: var(--p-red-500);
+// }
+
+// #toggle-sp .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider{
+//     background: var(--p-primary-color);
+// }
+
+// #toggle-sp .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked .p-toggleswitch-slider{
+//     background: var(--p-primary-hover-color);
+// }
+
+
+
+.section-icon {
+    width: var(--unit-32);
+    height: var(--unit-32); 
+
+}

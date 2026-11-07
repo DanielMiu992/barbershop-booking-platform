@@ -1,0 +1,403 @@
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<p-card header="📊 Panou de Administrare - Programări Frizerie">
+  <ng-template #title> 
+    <p class="mt-1 header-card uppercase font-semibold text-xl text-slate-900" >📊 Panou de Administrare - Programări Frizerie</p>
+  </ng-template>
+
+  <div class="flex flex-row gap-1 mb-6 bg-slate-50 p-4 border border-solid border-slate-200 border-round items-end justify-between">
+    <div class="flex flex-row flex-wrap gap-2 items-center">
+      @if(filtersAreApplied()){
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Filtre active:</span>
+        <div class="flex flex-row gap-2 flex-wrap items-center">
+          @if(appliedfilters.customer_name){
+            <p-tag 
+              [value]="'Client: ' + appliedfilters.customer_name" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+          @if(appliedfilters.barber_id){
+            <p-tag 
+              [value]="'Frizer: ' + appliedfilters.barber_id.full_name" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+
+          }
+          @if(appliedfilters.service_id){
+            <p-tag 
+              [value]="'Serviciu: ' + appliedfilters.service_id.name" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+          @if(appliedfilters.start_date && appliedfilters.end_date){
+            <p-tag 
+              [value]="'Interval: ' + appliedfilters.start_date + ' - ' + appliedfilters.end_date" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+          @if(appliedfilters.start_date && !appliedfilters.end_date){
+            <p-tag 
+              [value]="'Toate programările incepand cu data: ' + appliedfilters.start_date" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+
+          @if(!appliedfilters.start_date && appliedfilters.end_date){
+            <p-tag 
+              [value]="'Toate programările pana la data: ' + appliedfilters.end_date" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+          @if(appliedfilters.status){
+            <p-tag 
+              [value]="'Status: ' + appliedfilters.status.value" 
+              severity="info" 
+              styleClass="statusTag"
+            ></p-tag>
+          }
+
+        </div>
+        }
+    </div>
+      
+    <div class="flex flex-row gap-1">
+      <p-button (onClick)="downloadPdfReport()" 
+        icon="pi pi-file-check" 
+        severity="success"
+        size="small"
+        pTooltip="Descarcă raport PDF"
+        tooltipPosition="bottom"
+      ></p-button>
+      
+      <p-button (onClick)="displayFilterDialog.set(true)" label="Filtrare avansata" 
+        icon="fa-solid fa-filter"         
+        [severity]="filtersAreApplied() ? 'success' : 'info'" 
+        size="small"
+      />
+      <p-button (onClick)="clearFilters(dt)" label="Reseteaza filtrele" 
+        icon="fa-solid fa-filter-circle-xmark"         
+        severity="danger" 
+        size="small"
+      />
+      <p-iconfield iconPosition="left">
+          <p-inputicon class="pi pi-search"></p-inputicon>
+          <input type="text" pInputText [formControl]="$any(filterForm).get('search_query')" placeholder="Caută..."  pSize="small"/>
+      </p-iconfield>
+    </div>
+    
+  </div>
+  <p-table 
+    #dt
+    [value]="adminDashboardService.adminAppointments()" 
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    (onLazyLoad)="loadAppointmentsLazy($event)"
+    [rows]="5" 
+    [lazy]="true"
+    [paginator]="true"       
+    [showCurrentPageReport]="true"
+    [rowHover]="true"
+    [responsiveLayout]="'scroll'"
+    currentPageReportTemplate="Inregistrarile de la {first} la {last} din totalul de {totalRecords}"      
+    stripedRows
+  >
+    <ng-template #header >
+      <tr>
+        <th>#</th>
+        <th></th>
+        <th pSortableColumn="customer_first_name" >
+            Client <p-sortIcon field="customer_first_name" id="hd"/>
+        </th>
+        <th pSortableColumn="customer_phone">
+            Telefon <p-sortIcon field="customer_phone" id="hd"/>
+        </th>
+        <th pSortableColumn="barber_first_name">
+            Frizer <p-sortIcon field="barber_first_name" id="hd"/>
+        </th>
+        <th pSortableColumn="service_name">
+          Serviciu <p-sortIcon field="service_name" id="hd"/>
+        </th>
+        <th pSortableColumn="service_price">
+          Preț <p-sortIcon field="service_price" id="hd"/>
+        </th>
+        <th pSortableColumn="start_time">
+          Data / Ora Început <p-sortIcon field="start_time" id="hd"/>
+        </th>
+        <th pSortableColumn="appointment_customer_rating">
+          Rating client <p-sortIcon field="appointment_customer_rating" id="hd"/>
+        </th>
+        <th pSortableColumn="status">
+          Status <p-sortIcon field="status" id="hd"/>
+        </th>
+        <th>Actiuni</th>
+      </tr>
+    </ng-template>
+      <!-- <td>{{ app.start_time | date: 'dd/MM/yyyy HH:mm' : 'UTC' }}</td> -->
+    <ng-template #body let-app let-rowIndex="rowIndex">
+      <tr>
+        <td class="text-sm font-semibold">{{ rowIndex + 1 }}</td>
+        <th>
+          @if(app.customer_avatar_url){
+          <p-avatar 
+              [image]="app.customer_avatar_url" 
+              shape="circle" 
+              size="normal"
+              [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+          </p-avatar>
+
+          }@else{
+          <p-avatar 
+              icon="fa-solid fa-user-clock"
+              shape="circle" 
+              size="normal"
+              [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+          </p-avatar>
+
+          }
+          
+        </th>
+        <td>{{ app.customer_first_name }} {{ app.customer_last_name }}</td>
+        <td>{{ app.customer_phone }}</td>
+        <td>{{ app.barber_first_name}} {{ app.barber_last_name }}</td>
+        <td>
+          <div class="flex flex-row flex-wrap gap-1">
+            @for (service of app.services; track service.service_id) {
+              <p-tag 
+                [value]="service.name" 
+                severity="secondary" 
+                styleClass="statusTag"
+              />
+            }
+          </div>
+        </td>
+        <td class="font-semibold">{{ app.service_price }} RON</td>
+        <td>{{ app.start_time | date: 'dd/MM/yyyy HH:mm'}}</td>
+        <td>
+          <!-- @if(app.appointment_customer_rating){
+            <p-rating [(ngModel)]="app.appointment_customer_rating" [readonly]="true"
+              [stars]="5" 
+              [iconOnStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'}"
+              [iconOffStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default' }"
+              iconOnClass="fa-solid fa-star"
+              iconOffClass="fa-regular fa-star"
+            />
+          }@else {
+            -
+          } -->
+
+          <div class="flex justify-center items-center">
+            @if(app.appointment_customer_rating){
+              <label class="font-semibold">{{app.appointment_customer_rating}}</label> <i class="fa-solid fa-star text-sm" style="color: var(--p-button-text-warn-color)"></i>
+            }@else{
+              -
+            }
+          </div>
+
+        </td>
+        <td>
+          <!-- [style]="{ background: getBackground(app.status) }"  'var(--p-button-primary-color)'-->
+          <!-- <p-tag 
+            [value]="app.status" 
+            [severity]="getSeverity(app.status)" 
+            [style]="{ background: getBackground(app.status), color: getColor(app.status), weight: 'var(--p-button-label-font-weight)' }"
+            styleClass="statusTag text-xs"
+          /> -->
+          <p-tag 
+            [value]="app.status" 
+            [severity]="getSeverity(app.status)" 
+            [style]="{ background: getBackground(app.status), color: 'var(--p-button-primary-color)', weight: 'var(--p-button-label-font-weight)' }"
+            styleClass="statusTag text-xs"
+          />
+        </td>
+        <td>
+
+          <div class="flex flex-row">
+            <p-button (onClick)="onSetAppointmentConfirmation(app)" showDelay="300" hideDelay="300"
+              icon="fa-solid fa-circle-check" 
+              [severity]="app.status == 'completed' || app.status == 'cancelled' || (app.start_time | isFuture) ? 'secondary' : 'success'" 
+              [disabled]="app.status == 'cancelled' || app.status == 'completed' || (app.start_time | isFuture)"  
+              [pTooltip]="app.status == 'confirmed' && !(app.start_time | isFuture) ? 'Marcheaza programarea ca finalizata' : ''"
+              tooltipPosition="bottom"
+              size="small"
+              [fluid]="false"
+              [text]="true" 
+              styleClass="!p-0 !w-6 !h-6"
+            ></p-button>
+
+            <p-button (onClick)="onCancelAppointmentConfirmation(app)" showDelay="300" hideDelay="300"
+              icon="fa-solid fa-circle-xmark" 
+              [severity]="!(app.start_time | isPast) && app.status != 'cancelled' ? 'danger' : 'secondary'" 
+              [disabled]="(app.start_time | isPast) || app.status == 'cancelled'" 
+              [pTooltip]="!(app.start_time | isPast) && app.status != 'cancelled' ? 'Anulează programarea' : ''"
+              tooltipPosition="bottom"              
+              size="small"
+              [fluid]="false"
+              [text]="true"
+              styleClass="!p-0 !w-6 !h-6"
+            ></p-button>
+
+            <p-button (onClick)="openAppointmentRatingDialog(app)" showDelay="300" hideDelay="300"
+              icon="fa-solid fa-star" 
+              [severity]="app.status == 'completed' ? 'warn' : 'secondary'" 
+              [disabled]="app.status != 'completed'" 
+              [pTooltip]="app.status == 'completed' && !app.appointment_customer_rating ? 'Acorda o nota/recenzie clientului' : app.status == 'completed' && app.appointment_customer_rating ? 'Vezi recenzia acordata clientului' : ''"
+              tooltipPosition="bottom"
+              size="small"
+              [fluid]="false"
+              [text]="true"
+              styleClass="!p-0 !w-6 !h-6"
+            ></p-button>
+
+            <p-button (onClick)="showAppointmentInfo(app)" showDelay="300" hideDelay="300"
+              icon="fa-solid fa-circle-info" 
+              [severity]="app.status == 'completed' || app.status == 'cancelled' ? 'info' : 'secondary'" 
+              [disabled]="app.status == 'confirmed'" 
+              [pTooltip]="app.status == 'completed' || app.status == 'cancelled' ? 'Vezi observatiile notate' : ''"
+              tooltipPosition="left"              
+              size="small"
+              [fluid]="false"
+              [text]="true"
+              styleClass="!p-0 !w-6 !h-6"
+            ></p-button>
+
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="10" class="text-center p-8">
+          Nu s-a găsit nicio programare în baza de date.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog header="Filtrare avansata" 
+  [(visible)]="displayFilterDialog" 
+  [modal]="true" 
+  [style]="{ width: '350px', backgroundColor: 'rgb(248 250 252 / var(--tw-bg-opacity, 1))' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+  <p-card styleClass="!overflow-visible">
+    <form [formGroup]="filterForm">
+      <div class="flex flex-col gap-4" >
+        <!-- <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Nume Client:</label>
+          <input pInputText formControlName="customer_name" 
+            placeholder="Caută după nume..."
+            pSize="small" 
+          />
+        </div> -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Frizer:</label>
+          <p-select formControlName="barber_id" placeholder="Selectează frizer"
+            [options]="comboBoxService.publicBarbersCombo()" 
+            optionLabel="full_name" 
+            size="small"
+            [showClear]="true"
+            appendTo="body"
+          ></p-select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Status programare:</label>
+          <p-select formControlName="status" placeholder="Selectează status"
+            [options]="statusOptions" 
+            optionLabel="label" 
+            size="small"
+            [showClear]="true"
+            appendTo="body"
+          ></p-select>
+        </div>
+        
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Serviciu:</label>
+          <p-select formControlName="service_id" placeholder="Selectează serviciu"
+            [options]="comboBoxService.publicServicesCombo()" 
+            optionLabel="name" 
+            size="small"
+            [showClear]="true"
+            appendTo="body"
+          ></p-select>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Dată început:</label>
+          <p-datepicker formControlName="start_date" placeholder="DD/MM/YYYY"
+            dateFormat="dd/mm/yy" 
+            dataType="string"
+            [maxDate]="maxStartDate"
+            size="small"
+            [fluid]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            [panelStyle]="{ 'transform': 'translateX(-20px) translateY(-5px)' }"
+            appendTo="body"
+          ></p-datepicker>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700">Dată sfârșit:</label>
+          <p-datepicker formControlName="end_date" placeholder="DD/MM/YYYY"
+            dateFormat="dd/mm/yy" 
+            dataType="string"
+            [maxDate]="maxAllowedDate"
+            [minDate]="minEndDate"
+            size="small"
+            [fluid]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            [panelStyle]="{ 'transform': 'translateX(-20px) translateY(-5px)' }"
+            appendTo="body"
+          ></p-datepicker>
+        </div>
+      </div>
+    </form>
+  </p-card>
+  <ng-template #footer>
+    <p-button (onClick)="displayFilterDialog.set(false);" label="Inchide" 
+      severity="secondary"       
+      size="small"
+    ></p-button>
+    <p-button (onClick)="applyFilters(dt)" label="Aplica filtrele" 
+      severity="success"       
+      size="small"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<app-rating-dialog
+  #ratingDialog
+  [(visible)]="displayDialogRating"
+  [appointment]="selectedAppointment"
+  (onSaved)="dt.reset()"
+></app-rating-dialog>
+
+<app-complete-dialog
+  #completeDialog
+  [(visibleCompleteDialog)]="displayDialog"
+  [appointment]="selectedAppointment"
+  (onSet)="dt.reset(); loading.set(false)"
+  (onCancel)="loading.set(false)"
+></app-complete-dialog>
+
+<app-cancel-dialog
+  #cancelDialog
+  [(visibleCancelDialog)]="displayDialogCanceledAppointment"
+  (onSet)="dt.reset(); loading.set(false)"
+  (onCancel)="loading.set(false)"
+></app-cancel-dialog>
+
+<app-overview-dialog
+  #overviewDialog
+  [(visibleOverviewDialog)]="displayOverviewDialog"
+></app-overview-dialog>

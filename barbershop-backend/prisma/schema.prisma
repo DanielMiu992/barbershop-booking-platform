@@ -1,0 +1,152 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma/client"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model barber_schedule {
+  id          Int      @id @default(autoincrement())
+  barber_id   Int
+  day_of_week Int
+  start_hour  DateTime @db.Time(6)
+  end_hour    DateTime @db.Time(6)
+  barbers     barbers  @relation(fields: [barber_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([barber_id, day_of_week], map: "unique_barber_day")
+  @@index([barber_id, day_of_week], map: "idx_schedule_barber_day")
+}
+
+model barbers {
+  id                 Int                  @id
+  is_active          Boolean              @default(true)
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  rating_avg         Decimal              @default(0.00) @db.Decimal(3, 2)
+  rating_count       Int                  @default(0)
+  bio                String?
+  specialties        String?              @db.VarChar(255)
+  appointments       appointments[]
+  barber_schedule    barber_schedule[]
+  barber_specialties barber_specialties[]
+  users              users                @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_barbers_users")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model services {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(150)
+  duration_minutes     Int
+  price                Decimal                @db.Decimal(10, 2)
+  is_active            Boolean                @default(true)
+  service_type         String                 @default("main") @db.VarChar(20)
+  is_addon             Boolean                @default(false)
+  appointment_services appointment_services[]
+  appointments         appointments[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model appointments {
+  id                       Int                    @id @default(autoincrement())
+  customer_id              Int
+  barber_id                Int
+  service_id               Int
+  start_time               DateTime               @db.Timestamp(6)
+  end_time                 DateTime               @db.Timestamp(6)
+  status                   appointment_status     @default(confirmed)
+  created_at               DateTime?              @default(now()) @db.Timestamptz(6)
+  appointment_overview     String?
+  customer_cancel_reason   String?
+  admin_cancel_reason      String?
+  rating                   Int?
+  customer_rating_by_staff Int?
+  reminder_24h_sent_at     DateTime?              @db.Timestamptz(6)
+  reminder_3h_sent_at      DateTime?              @db.Timestamptz(6)
+  review_invite_sent_at    DateTime?              @db.Timestamptz(6)
+  calendar_uid             String?                @db.VarChar(255)
+  appointment_services     appointment_services[]
+  barbers                  barbers                @relation(fields: [barber_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                    users                  @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  services                 services               @relation(fields: [service_id], references: [id], onUpdate: NoAction)
+
+  @@index([start_time, status], map: "idx_appointments_reminder_24h", where: raw("(reminder_24h_sent_at IS NULL)"))
+  @@index([start_time, status], map: "idx_appointments_reminder_3h", where: raw("(reminder_3h_sent_at IS NULL)"))
+  @@index([end_time, status], map: "idx_appointments_review_invite", where: raw("(review_invite_sent_at IS NULL)"))
+}
+
+model users {
+  id                    Int                     @id @default(autoincrement())
+  email                 String                  @unique @db.VarChar(150)
+  password_hash         String                  @db.VarChar(255)
+  first_name            String                  @db.VarChar(100)
+  last_name             String                  @db.VarChar(100)
+  phone                 String                  @db.VarChar(20)
+  role                  user_role               @default(customer)
+  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  customer_rating_avg   Decimal                 @default(0.00) @db.Decimal(3, 2)
+  customer_rating_count Int                     @default(0)
+  avatar_url            String?                 @db.VarChar(255)
+  appointments          appointments[]
+  barbers               barbers?
+  password_reset_tokens password_reset_tokens[]
+}
+
+model password_reset_tokens {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  token_hash String    @unique @db.VarChar(64)
+  expires_at DateTime  @db.Timestamptz(6)
+  used_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  purpose    String    @default("reset") @db.VarChar(20)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([token_hash], map: "idx_reset_tokens_hash")
+}
+
+model appointment_services {
+  appointment_id      Int
+  service_id          Int
+  price_at_booking    Decimal      @db.Decimal(10, 2)
+  duration_at_booking Int
+  is_main             Boolean      @default(false)
+  appointments        appointments @relation(fields: [appointment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "appointment_services_appointment_fkey")
+  services            services     @relation(fields: [service_id], references: [id], onUpdate: NoAction, map: "appointment_services_service_fkey")
+
+  @@id([appointment_id, service_id])
+  @@index([appointment_id], map: "idx_appointment_services_appointment")
+}
+
+model barber_specialties {
+  barber_id    Int
+  specialty_id Int
+  barbers      barbers     @relation(fields: [barber_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "barber_specialties_barber_fkey")
+  specialties  specialties @relation(fields: [specialty_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "barber_specialties_specialty_fkey")
+
+  @@id([barber_id, specialty_id])
+  @@index([barber_id], map: "idx_barber_specialties_barber")
+}
+
+model specialties {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique @db.VarChar(100)
+  is_active          Boolean              @default(true)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  barber_specialties barber_specialties[]
+}
+
+enum appointment_status {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum user_role {
+  customer
+  admin
+  barber
+}

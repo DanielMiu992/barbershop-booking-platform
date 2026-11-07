@@ -1,0 +1,102 @@
+<p-dialog 
+  header="Nota/Observatie programare anulata" 
+  [(visible)]="visibleCancelDialog" 
+  [modal]="true" [style]="{ width: '500px' }" 
+  [draggable]="false" 
+  [resizable]="false"
+  (onHide)="onCancel.emit(); setFormCancelledApp.reset();"
+>
+  <form [formGroup]="setFormCancelledApp" (ngSubmit)="onSetAppointmentCanceled()" >
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-row justify-between items-center gap-2">
+        <div class="flex items-center gap-2" pTooltip="Frizer" tooltipPosition="bottom">
+          <i class="fa-solid fa-scissors"></i>
+            <!-- @if (fscav.barber_avatar_url) {
+            <p-avatar 
+                [image]="fscav.barber_avatar_url" 
+                shape="circle" 
+                size="large"
+                [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+            </p-avatar>
+            } @else {
+            <i class="fa-solid fa-scissors"></i>
+            <p-avatar 
+                icon="pi pi-user"
+                shape="circle" 
+                size="large"
+                [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+            </p-avatar>
+            } -->
+          
+          <span class="font-bold whitespace-nowrap">{{fscav.barber_name}}</span>
+        </div>
+        <div class="flex items-center gap-2" pTooltip="Client" tooltipPosition="bottom">
+          <i class="fa-solid fa-user-clock"></i>
+          <!-- @if (fscav.customer_avatar_url) {
+          <p-avatar 
+              [image]="fscav.customer_avatar_url" 
+              shape="circle" 
+              size="large"
+              [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+          </p-avatar>
+          } @else {
+          <i class="fa-solid fa-user-clock"></i>
+          <p-avatar 
+              icon="pi pi-user"
+              shape="circle" 
+              size="large"
+              [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+          </p-avatar>
+          } -->
+          <span class="font-bold whitespace-nowrap">{{fscav.customer_name }}</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-semibold text-slate-700">Nota/Observatie:</label>
+        <textarea pTextarea formControlName="cancel_reason"
+          [placeholder]="!fscav.cancel_reason && fscav.appointment_status == 'cancelled' ? 'Nu exista informatii notate' : ''"
+          [ngClass]="{'ng-invalid ng-dirty': fscac.cancel_reason?.invalid && (fscac.cancel_reason?.dirty || fscac.cancel_reason?.touched)}"
+          rows="5" cols="30" 
+        ></textarea>
+        <div class="flex justify-between">
+          <small class="text-slate-500">Maxim 500 de caractere.</small>
+          <small class="text-slate-500">
+            {{ (setFormCancelledApp.get('cancel_reason')?.value ?? '').length }}/500
+          </small>
+        </div>
+
+      </div>
+      @if (fscac.cancel_reason?.invalid && (fscac.cancel_reason?.dirty || fscac.cancel_reason?.touched) && fscac.cancel_reason?.hasError('maxlength')){
+        <p-message severity="error" variant="simple" size="small">Lungimea maxima a campului este de 500 de caractere</p-message>                        
+      }
+      @if (fscac.cancel_reason?.invalid && (fscac.cancel_reason?.dirty || fscac.cancel_reason?.touched) && fscac.cancel_reason?.hasError('required')){
+        <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+      }
+      @if (fscac.cancel_reason?.invalid && (fscac.cancel_reason?.dirty || fscac.cancel_reason?.touched) && fscac.cancel_reason?.hasError('containsTagsOrSriptingsOrLinksOrEmails')){
+        <p-message severity="error" variant="simple" size="small">Campul "Nota/Observatie" nu trebuie sa contina link-uri, tag-uri HTML, elemente de scripting sau adrese de email</p-message>                        
+      }
+
+      <div class="flex flex-row gap-1 justify-end ">
+        <p-button 
+            [label]="'Inchide'"
+            severity="secondary" 
+            (onClick)="visibleCancelDialog.set(false)" 
+            size="small"
+        ></p-button>
+        <!--           
+            (onClick)="displayDialogCanceledAppointment = false;" 
+            [label]="fscav.appointment_status == 'cancelled' ? 'Inchide' : 'Anuleaza'"
+          [text]="fscav.appointment_status == 'cancelled'? 'false' : 'true'" 
+         -->
+        <p-button 
+          type="submit"
+          label="Salvează" 
+          severity="success" 
+          size="small"
+          [loading]="isSavingCancelStatus()"
+        ></p-button>
+        <!-- *ngIf="fscav.appointment_status != 'cancelled'" -->
+      </div>
+    </div>
+  </form>
+</p-dialog>

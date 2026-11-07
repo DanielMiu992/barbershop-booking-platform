@@ -1,0 +1,89 @@
+<p-dialog 
+  [header]="'Recenzia ta pentru programarea finalizata'" 
+  [(visible)]="visibleRatingDialog" 
+  [modal]="true" [style]="{ width: '500px' }" 
+  [draggable]="false" 
+  [resizable]="false"
+  (onHide)="setFormRating.reset(); onCancelRatingDialog.emit();"
+>
+  <form [formGroup]="setFormRating" (ngSubmit)="onSetAppointmentRating()" >
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-row justify-between items-center">
+        <div class="flex flex-row gap-1">
+            @if(fsrv.barber_avatar_url){
+            <p-avatar 
+                [image]="fsrv.barber_avatar_url" 
+                shape="circle" 
+                size="xlarge"
+                [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+            </p-avatar>
+
+            }@else{
+            <p-avatar 
+                icon="pi pi-user"
+                shape="circle" 
+                size="xlarge"
+                [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+            </p-avatar>
+
+            }                    
+          <div class="flex flex-col justify-center">
+            <span class="font-bold whitespace-nowrap text-slate-700 ">{{fsrv.barber_name}} </span>
+            <!-- <p-rating formControlName="barber_rating" 
+              [stars]="5" 
+              [readonly]="true" 
+              [iconOnStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'  }"
+              [iconOffStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'  }"
+              iconOnClass="fa-solid fa-star"
+              iconOffClass="fa-regular fa-star"
+              class="[--p-rating-icon-size:0.5rem]"
+              [pTooltip]="fsrv.barber_rating + ' (' + fsrv.barber_rating_count + ' recenzii)'"
+              tooltipPosition="bottom"
+            ></p-rating> -->
+
+            <app-star-rating-display
+              [rating]="fsrv.barber_rating ?? 0"
+              [reviewCount]="fsrv.barber_rating_count ?? null"
+            ></app-star-rating-display>
+
+          </div>
+        </div>
+        <p-rating formControlName="rating" [readonly]="readOnly()"
+          [stars]="5" 
+          [iconOnStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': readOnly() ? 'default' : 'pointer' }"
+          [iconOffStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': readOnly() ? 'default' : 'pointer' }"
+          iconOnClass="fa-solid fa-star"
+          iconOffClass="fa-regular fa-star"
+          class="[--p-rating-icon-size:1.25rem] [--p-rating-gap:0.75rem]"
+        ></p-rating>   
+
+
+      </div>
+      <div class="flex flex-row gap-1">
+        @if (fsrc.rating?.invalid && (fsrc.rating?.dirty || fsrc.rating?.touched) && fsrc.rating?.hasError('required')){
+          <p-message severity="error" variant="simple" size="small">Camp obligatoriu. Acorda o nota de la 1 la 5</p-message>                        
+        }
+      </div>
+
+      <div class="flex flex-row gap-1 justify-end ">
+        <p-button 
+          severity="secondary" 
+          (onClick)="onCancelRatingDialog.emit(); visibleRatingDialog.set(false);" 
+          [label]="readOnly() ? 'Inchide': 'Anuleaza'"
+          size="small"
+          [text]="'true'" 
+        ></p-button>
+        @if (!readOnly()) {
+        <p-button 
+            type="submit"
+            label="Salvează" 
+            severity="success" 
+            size="small"
+            [loading]="isSaving()"
+        ></p-button>
+
+        }
+      </div>
+    </div>
+  </form>
+</p-dialog>

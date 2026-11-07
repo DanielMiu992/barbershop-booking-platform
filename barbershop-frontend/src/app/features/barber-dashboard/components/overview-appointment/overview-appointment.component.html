@@ -1,0 +1,150 @@
+<p-dialog 
+  [header]="'Info programare'" 
+  [(visible)]="visibleOverviewDialog" 
+  [modal]="true" [style]="{ width: '500px' }" 
+  [draggable]="false" 
+  [resizable]="false"
+  (onHide)="overviewForm.reset();"
+>
+<!-- (ngSubmit)="onSetAppointmentCompleted()" -->
+  <form [formGroup]="overviewForm"  >
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-row justify-between">
+            <div class="flex flex-row gap-1">
+                <i class="fa-solid fa-scissors"></i>
+                <!-- @if (fsrv.barber_avatar_url) {
+                <p-avatar 
+                    [image]="fsrv.barber_avatar_url" 
+                    shape="circle" 
+                    size="large"
+                    [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                </p-avatar>
+                } @else {
+
+                <p-avatar 
+                    icon="pi pi-user"
+                    shape="circle" 
+                    size="large"
+                    [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                </p-avatar>
+                } -->
+
+                <div class="flex flex-col justify-center" >
+                    <span class="font-bold whitespace-nowrap text-slate-700" pTooltip="Frizer" tooltipPosition="right">{{fsrv.barber_name}}</span>
+
+                    <app-star-rating-display
+                        [rating]="fsrv.barber_rating_avg ?? 0"
+                        [reviewCount]="fsrv.barber_rating_count ?? null"
+                    ></app-star-rating-display>
+
+                </div>
+            </div>
+            <div class="flex flex-row gap-1">
+                <i class="fa-solid fa-user-clock"></i>
+                <!-- @if (fsrv.customer_avatar_url) {
+                <p-avatar 
+                    [image]="fsrv.customer_avatar_url" 
+                    shape="circle" 
+                    size="large"
+                    [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                </p-avatar>
+                } @else {
+
+                <p-avatar 
+                    icon="pi pi-user"
+                    shape="circle" 
+                    size="large"
+                    [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                </p-avatar>
+                } -->
+
+
+                <div class="flex flex-col justify-center">
+                    <span class="font-bold whitespace-nowrap text-slate-700" pTooltip="Client" tooltipPosition="right">{{fsrv.customer_name}} </span>
+                    <app-star-rating-display
+                        [rating]="fsrv.client_rating_avg ?? 0"
+                        [reviewCount]="fsrv.client_rating_count ?? null"
+                    ></app-star-rating-display>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="flex flex-col text-slate-700 text-sm">
+            @if(fsrv.appointment_status == 'completed'){
+                <p-tag severity="success" value="Programare finalizata" />
+            }@else{
+                <p-tag severity="danger" value="Programare anulata" />
+            }
+
+        </div>
+        <div class="flex flex-row justify-between items-center">
+            
+            <div class="flex flex-col text-slate-700 text-sm gap-1 mt-1">
+                <p><span class="font-semibold">Serviciu:</span> {{fsrv.service_name}}</p>
+                <p><span class="font-semibold">Data:</span> {{ fsrv.start_time | date: 'dd/MM/yyyy HH:mm'}}</p>
+            </div>
+
+            <div class="flex flex-row items-center gap-1">
+            @if(fsrv.appointment_customer_rating){
+                <p-avatar icon="fa-solid fa-user-clock" size="normal" />
+                <!-- <p-rating formControlName="appointment_customer_rating" 
+                    [stars]="5" 
+                    [readonly]="true" 
+                    [iconOnStyle]="{'cursor': 'default'}"
+                    [iconOffStyle]="{'cursor': 'default'}"
+                    iconOnClass="fa-solid fa-star"
+                    iconOffClass="fa-regular fa-star"
+                    tooltipPosition="bottom"
+                    pTooltip="Nota acordata de FRIZER clientului pentru aceasta programare"
+                ></p-rating> -->
+
+                <app-star-rating-display
+                    [rating]="fsrv.appointment_customer_rating ?? 0"
+                    [tooltipOverride]="'Nota acordata de FRIZER clientului pentru aceasta programare'"
+                    [size]="'1rem'"
+                    [color]="'var(--p-rating-icon-active-color)'"
+                ></app-star-rating-display>
+
+            }                    
+            </div>
+
+                        
+        </div>
+        @if(fsrv.appointment_status == 'completed'){
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Nota/Observatie programare finalizata:</label>
+                <textarea pTextarea formControlName="appointment_overview"
+                    [placeholder]="!fsrv.appointment_overview ? 'Nu exista informatii notate' : ''"
+                    rows="5" cols="30" 
+                    size="small"
+                    [readonly]="true"
+                ></textarea>
+            </div>
+        }
+        @if(fsrv.appointment_status == 'cancelled'){
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Motiv anulare rezervare:</label>
+                <textarea pTextarea formControlName="cancel_reason"
+                    [placeholder]="!fsrv.cancel_reason ? 'Nu exista informatii notate' : ''"
+                    rows="5" cols="30" 
+                    size="small"
+                    [readonly]="true"
+                ></textarea>
+            </div>
+
+        }
+    </div>
+  </form>
+    <ng-template pTemplate="footer">
+        <p-button 
+            [label]="'Inchide'"
+            [text]="'true'"
+            severity="secondary" 
+            size="small"
+            (onClick)="visibleOverviewDialog.set(false)" 
+        ></p-button>
+    </ng-template>
+
+</p-dialog>
+

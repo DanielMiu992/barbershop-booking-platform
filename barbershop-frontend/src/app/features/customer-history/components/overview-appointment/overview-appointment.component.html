@@ -1,0 +1,105 @@
+<p-dialog 
+  [header]="'Info programare'" 
+  [(visible)]="visibleOverviewDialog" 
+  [modal]="true" [style]="{ width: '500px' }" 
+  [draggable]="false" 
+  [resizable]="false"
+  (onHide)="onHide()"
+>
+    <form [formGroup]="overviewForm">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-row justify-between items-center">
+                <div class="flex flex-row items-baseline gap-1">
+                    <label class="flex flex-row items-baseline gap-2">
+                        <i class="fa-solid fa-scissors"></i>
+                    </label>
+                    
+                    <!-- @if (fsrv.barber_avatar_url) {
+                    <p-avatar 
+                        [image]="fsrv.barber_avatar_url" 
+                        shape="circle" 
+                        size="large"
+                        [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }"
+                    ></p-avatar>
+                    } @else {
+
+                    <label class="flex flex-row  gap-2  ">
+                        <i class="fa-solid fa-scissors text-base"></i>
+                    </label>
+
+                    } -->
+
+
+                    <div class="flex flex-col justify-center" >
+                        <span class="font-bold whitespace-nowrap text-slate-700" pTooltip="Frizer" tooltipPosition="right" >{{fsrv.barber_name}} </span>
+                        <app-star-rating-display
+                            [rating]="fsrv.barber_rating_avg ?? 0"
+                            [reviewCount]="fsrv.barber_rating_count ?? null"
+                        ></app-star-rating-display>
+
+                        <!-- <p-rating formControlName="barber_rating_avg" 
+                            [stars]="5" 
+                            [readonly]="true" 
+                            [iconOnStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'  }"
+                            [iconOffStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'  }"
+                            iconOnClass="fa-solid fa-star"
+                            iconOffClass="fa-regular fa-star"
+                            class="[--p-rating-icon-size:0.5rem]"
+                            [pTooltip]="fsrv.barber_rating_avg + ' (' + fsrv.barber_rating_count + ' recenzii)'"
+                            tooltipPosition="bottom"
+                        ></p-rating> -->
+                    </div>
+                </div>
+                @if(fsrv.appointment_barber_rating){
+                <div class="flex flex-row gap-1">
+                    <p-rating formControlName="appointment_barber_rating" 
+                        [stars]="5" 
+                        [readonly]="true" 
+                        [iconOnStyle]="{'cursor': 'default'}"
+                        [iconOffStyle]="{'cursor': 'default'}"
+                        iconOnClass="fa-solid fa-star"
+                        iconOffClass="fa-regular fa-star"
+                        pTooltip="Nota acordata frizerului pentru aceasta programare"
+                        tooltipPosition="bottom"
+                    ></p-rating>
+                </div>
+                }
+
+            </div>
+            <div class="flex flex-col text-slate-700 text-sm">
+                @if(fsrv.appointment_status == 'completed'){
+                    <p-tag severity="success" value="Programare finalizata" />
+                }@else{
+                    <p-tag severity="danger" value="Programare anulata" />
+                }
+
+            </div>
+            <div class="flex flex-col text-slate-700 text-sm gap-1 mt-1">
+                <p><span class="font-semibold">Serviciu:</span> {{fsrv.service_name}}</p>
+                <p><span class="font-semibold">Data:</span> {{ fsrv.start_time | date: 'dd/MM/yyyy HH:mm'}}</p>                            
+            </div>
+            @if(fsrv.appointment_status == 'cancelled'){
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-slate-700">Motiv anulare rezervare:</label>
+                <textarea pTextarea formControlName="cancel_reason"
+                    [placeholder]="!fsrv.cancel_reason ? 'Nu exista informatii notate' : ''"
+                    rows="5" cols="30" 
+                    size="small"
+                    [readonly]="true"
+                ></textarea>
+            </div>
+            }
+
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button 
+            [label]="'Inchide'"
+            [text]="'true'"
+            severity="secondary" 
+            size="small"
+            (onClick)="visibleOverviewDialog.set(false)" 
+        ></p-button>
+    </ng-template>
+
+</p-dialog>

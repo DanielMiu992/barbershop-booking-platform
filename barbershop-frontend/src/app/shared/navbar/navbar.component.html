@@ -1,0 +1,124 @@
+<!-- <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-md">
+  <div class="text-xl font-bold tracking-wider text-emerald-400">BarberShop</div>
+  
+  <div class="flex gap-6">
+    <a routerLink="/booking" routerLinkActive="text-emerald-400 font-bold" class="hover:text-emerald-300 transition text-sm">Rezervă acum</a>
+    <a routerLink="/admin-barbers" routerLinkActive="text-emerald-400 font-bold" class="hover:text-emerald-300 transition text-sm">Frizeri</a>
+    <a routerLink="/admin-services" routerLinkActive="text-emerald-400 font-bold" class="hover:text-emerald-300 transition text-sm">Servicii</a>
+  </div>
+
+  <div>
+    <button class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded transition">Contul meu</button>
+  </div>
+</nav> -->
+
+
+
+<!-- <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-md">
+  
+  <a routerLink="/booking" class="text-xl font-bold tracking-wider text-emerald-400">
+    BarberShop
+  </a>
+  
+  <div class="flex gap-6">
+    <a  
+        routerLink="/booking" 
+        routerLinkActive="text-emerald-400 font-bold" 
+        class="text-sm hover:text-emerald-300"
+    > Rezervă Acum </a>
+
+    @if (authService.isCustomer()) {
+        <a 
+            routerLink="/customer-history" 
+            routerLinkActive="text-emerald-400 font-bold" 
+            class="text-sm hover:text-emerald-300"
+        > Istoric Rezervări </a>
+    }
+
+    @if (authService.isAdmin()) {
+        <a 
+            routerLink="/admin-dashboard" 
+            routerLinkActive="text-emerald-400 font-bold" 
+            class="text-sm hover:text-emerald-300"
+        > Panou Control </a>
+
+        <a 
+            routerLink="/admin-barbers" 
+            routerLinkActive="text-emerald-400 font-bold" 
+            class="text-sm hover:text-emerald-300"
+        > Management Echipă Frizeri </a>
+        <a 
+            routerLink="/admin-services" 
+            routerLinkActive="text-emerald-400 font-bold" 
+            class="text-sm hover:text-emerald-300"
+        > Management Servicii </a>
+    }
+  </div>
+
+  <div>
+    
+      <div class="flex items-center gap-4">
+        @if (authService.isLoggedIn()) {
+            <span class="text-xs text-slate-400">Salut, {{ authService.currentUser()?.first_name }}</span>
+        }
+        <p-button 
+            [label]="authService.currentUser() ? 'Logout' : 'Login'"
+            [icon]="authService.currentUser() ? 'pi pi-sign-out' : 'pi pi-sign-in'"
+            [severity]="authService.currentUser() ? 'danger' : 'primary'"
+            (onClick)="onAuthButtonClick()"
+            size="small"
+            class="text-sm px-3 py-1.5 rounded transition"
+        ></p-button>
+      </div>
+  </div>
+
+</nav> -->
+
+
+<p-menubar [model]="items()" 
+        styleClass="w-full flex items-center justify-between bg-slate-900 border-none p-4 
+                       [&>.p-menubar-start]:w-[15%] 
+                       [&>.p-menubar-root-list]:w-[65%] [&>.p-menubar-root-list]:justify-center
+                       [&>.p-menubar-end]:w-[20%]">
+    <ng-template #start  >
+        <a routerLink="/booking" class="text-xl font-bold tracking-wider text-emerald-400">
+            BarberShop
+        </a>
+    </ng-template>
+    <ng-template #item let-item>
+        <div class="flex justify-start w-full">
+            <a pRipple 
+                routerLink="{{item.routerLink}}" 
+                routerLinkActive="is-route-active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="p-menubar-item-link flex items-center uppercase text-sm font-semibold gap-2"
+                
+            >
+            <!-- 
+                [class.bg-slate-400]="router.isActive(item.routerLink, { matrixParams: 'ignored', queryParams: 'ignored', paths: 'exact', fragment: 'ignored' })"
+                [class.!text-emerald-400]="router.isActive(item.routerLink, { matrixParams: 'ignored', queryParams: 'ignored', paths: 'exact', fragment: 'ignored' })"
+                [class.font-bold]="router.isActive(item.routerLink, { matrixParams: 'ignored', queryParams: 'ignored', paths: 'exact', fragment: 'ignored' })"
+            -->
+                <i class="{{item.icon}}" ></i>
+                <span>{{item.label}}</span>
+            </a>
+
+        </div>
+    </ng-template>
+    <ng-template #end style="margin-left: 0;">
+        <div class="flex items-center gap-3 justify-end w-full">
+            @if (authService.currentUser()) {
+                <span class="text-xs text-slate-400">Salut, {{ authService.currentUser()?.first_name }}</span>
+            }
+            <p-button 
+                [label]="authService.currentUser() ? 'Logout' : 'Login'"
+                [icon]="authService.currentUser() ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-solid fa-arrow-right-to-bracket'"
+                [severity]="authService.currentUser() ? 'danger' : 'primary'"
+                (onClick)="onAuthButtonClick()"
+                size="small"
+                class="text-sm px-3 py-1.5 rounded transition"
+            ></p-button>
+        </div>
+
+    </ng-template>
+</p-menubar>

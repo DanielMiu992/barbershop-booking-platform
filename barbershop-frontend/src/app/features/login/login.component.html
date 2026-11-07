@@ -1,0 +1,72 @@
+<div class="max-w-md mx-auto mt-24 p-4" >
+    <p-card header="🔐 Autentificare Admin / Client">
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="flex flex-col gap-y-4 mt-4">
+            <p-message *ngIf="errorMessage()" severity="error" [text]="errorMessage()!"></p-message>
+
+            <div class="flex flex-col gap-y-2">
+                <label class="text-sm font-semibold">Email:</label>
+                <input pInputText formControlName="email" 
+                    type="email" 
+                    name="email" 
+                    required 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': email?.invalid && (email?.dirty || email?.touched)}"
+                />
+                <!-- @if (email?.invalid && (email?.dirty || email?.touched)){ -->
+                    @if (email?.invalid && (email?.dirty || email?.touched) && email?.hasError('required')){
+                        <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+
+                    @if (email?.invalid && (email?.dirty || email?.touched) && this.email?.errors?.['maxlength']){
+                        <p-message severity="error" variant="simple" size="small">Lungimea maxima a campului este de 60 de caractere</p-message>                        
+                    }
+
+                    
+                    @if (email?.invalid && (email?.dirty || email?.touched) && email?.hasError('email')){
+                        <p-message severity="error" variant="simple" size="small">Adresa de mail incorecta</p-message>
+                    }
+
+
+                <!-- } -->
+                <!-- <small class="text-red-500" *ngIf="isSubmitted && loginForm.get('email')?.errors?.['required']">
+                    Camp obligatoriu
+                </small> -->
+
+                <!-- <small class="text-red-500" *ngIf="isSubmitted && loginForm.get('email')?.errors?.['email']">
+                    Adresa de mail incorecta
+                </small> -->
+
+
+            </div>
+
+            <div class="flex flex-col gap-y-2">
+                <label class="text-sm font-semibold">Parolă:</label>
+                <p-password formControlName="password" 
+                    name="password" 
+                    [feedback]="false" 
+                    [toggleMask]="true" 
+                    [fluid]="true"
+                    [ngClass]="{'ng-invalid ng-dirty': password?.invalid && (password?.dirty || password?.touched)}"
+                ></p-password>
+
+                @if (password?.invalid && (password?.dirty || password?.touched) && password?.hasError('required')){
+                    <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>
+                }
+
+                @if (password?.invalid && (password?.dirty || password?.touched) && password?.hasError('maxlength')){
+                    <p-message severity="error" variant="simple" size="small">Lungimea maxima a campului este de 60 de caractere</p-message>                        
+                }
+
+            </div>
+
+            
+            <p-button label="Intră în cont" type="submit" [fluid]="true" ></p-button>
+        
+            <div class="flex flex-col gap-1 text-center text-sm">
+                <span>Nu ai cont? <a routerLink="/register" style="color: var(--p-primary-color); font-weight: bold; text-decoration: none;">Înregistrează-te</a></span>
+                <span>Ai uitat parola? <a routerLink="/forgot-password" style="color: var(--p-primary-color); font-weight: bold; text-decoration: none;">Click aici</a></span>
+
+            </div>
+        </form>
+    </p-card>
+</div>

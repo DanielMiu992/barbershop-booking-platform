@@ -1,0 +1,501 @@
+<p-toast />
+<div class="flex flex-row gap-6 justify-center">
+    <div class="max-w-xs flex flex-col gap-6">
+        <p-card>
+            <ng-template #title> 
+                <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">👤 Informatii Cont</h3>
+            </ng-template>
+            <div class="flex flex-col gap-3 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-600 w-32">Rating:</span>
+                    <app-star-rating-display 
+                        [rating]="profile()?.rating_avg ?? 0"
+                        [reviewCount]="profile()?.rating_count ?? 0" 
+                    />
+                </div>
+                @if (isBarber()) {
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-600 w-32">Status:</span>
+                    <p-tag 
+                        [value]="profile()?.is_active ? 'Activ' : 'Inactiv'"
+                        [severity]="profile()?.is_active ? 'success' : 'danger'" 
+                    />
+                </div>
+
+                } @else{
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-600 w-40">Vizite finalizate:</span>
+                    <span class="font-semibold">{{ profile()?.total_appointments }}</span>
+                </div>  
+                @if (profile()?.favorite_barber) {
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-600 w-40">Frizerul preferat:</span>
+                    <span>{{ profile()?.favorite_barber }}</span>
+                </div>
+                }                
+                }
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-600 w-32">Membru din:</span>
+                    <span>{{ profile()?.created_at }}</span>
+                </div>
+            </div>
+
+            @if (isBarber()) {
+            <h4 class="font-semibold text-slate-700 mt-6 mb-2">Program de lucru</h4>
+            @if ((profile()?.schedule ?? []).length === 0) {
+                <p class="text-sm text-slate-500">Nu ai încă un program setat.</p>
+            } @else {
+            <div class="flex flex-col gap-1 text-sm">
+                @for (day of profile()?.schedule ?? []; track day.day_of_week) {
+                <div class="flex gap-2">
+                    <span class="text-slate-600 w-32">{{ dayNames[day.day_of_week] }}:</span>
+                    <span>{{ day.start_hour }} – {{ day.end_hour }}</span>
+                </div>
+                }
+            </div>
+            }
+            <small class="text-slate-500 block mt-3">
+                Programul se modifică de către administrator.
+            </small>                
+            }
+
+        </p-card>
+
+
+
+    </div>
+    <p-card>
+        <ng-template #title> 
+            <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">📘 Date Personale</h3>
+        </ng-template>
+        <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" class="flex flex-col gap-4">
+
+            <div class="flex items-center gap-4">
+                @if (avatarPreview()) {
+                    <p-avatar 
+                        [image]="avatarPreview()" 
+                        shape="circle" 
+                        size="xlarge"
+                        [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                    </p-avatar>
+                } @else {
+
+                <p-avatar 
+                    icon="pi pi-user"
+                    shape="circle" 
+                    size="xlarge"
+                    [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                </p-avatar>
+
+
+                }
+                <p-fileUpload mode="basic" chooseLabel="Schimbă poza"
+                    chooseIcon="fa-solid fa-camera"
+                    accept="image/png,image/jpeg,image/webp"
+                    [maxFileSize]="2000000" [auto]="true" [customUpload]="true"
+                    (uploadHandler)="onAvatarSelected($event)"
+                    [disabled]="uploadingAvatar()" 
+                />
+            </div>
+                
+            
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Nume:</label>
+                    <input pInputText formControlName="last_name"  
+                        [ngClass]="{'ng-invalid ng-dirty': prffc.last_name?.invalid && (prffc.last_name?.dirty || prffc.last_name?.touched)}"
+                    />
+
+                    @if (prffc.last_name?.invalid && (prffc.last_name?.dirty || prffc.last_name?.touched) && prffc.last_name?.hasError('required')){
+                        <p-message severity="error"  variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+
+                    @if (prffc.last_name?.invalid && (prffc.last_name?.dirty || prffc.last_name?.touched) && prffc.last_name?.hasError('specialChars')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Nume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                    }
+
+                    @if (prffc.last_name?.invalid && (prffc.last_name?.dirty || prffc.last_name?.touched) && prffc.last_name?.hasError('maxlength')){
+                        <p-message severity="error" variant="simple" size="small">Maxim 60 de caractere</p-message>                        
+                    }
+
+                    @if (prffc.last_name?.invalid && (prffc.last_name?.dirty || prffc.last_name?.touched) && prffc.last_name?.hasError('minlength')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Nume" trebuie sa aibe cel putin 2 caractere</p-message>                        
+                    }
+                    
+
+                    <!-- Numele trebuie sa aibe cel putin 2 caractere -->
+
+
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Prenume:</label>
+                    <input pInputText formControlName="first_name"  
+                        [ngClass]="{'ng-invalid ng-dirty': prffc.first_name?.invalid && (prffc.first_name?.dirty || prffc.first_name?.touched)}"
+                    />
+                    @if (prffc.first_name?.invalid && (prffc.first_name?.dirty || prffc.first_name?.touched) && prffc.first_name?.hasError('required')){
+                        <p-message severity="error"  variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+                    @if (prffc.first_name?.invalid && (prffc.first_name?.dirty || prffc.first_name?.touched) && prffc.first_name?.hasError('specialChars')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Prenume" nu trebuie sa contina caractere speciale (ex: &#64;, #, $, !)</p-message>                        
+                    }
+
+                    @if (prffc.first_name?.invalid && (prffc.first_name?.dirty || prffc.first_name?.touched) && prffc.first_name?.hasError('maxlength')){
+                        <p-message severity="error" variant="simple" size="small">Maxim 60 de caractere</p-message>                        
+                    }
+
+                    @if (prffc.first_name?.invalid && (prffc.first_name?.dirty || prffc.first_name?.touched) && prffc.first_name?.hasError('minlength')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Prenume" trebuie sa aibe cel putin 2 caractere</p-message>                        
+                    }
+
+
+
+
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Telefon:</label>
+                    <input pInputText formControlName="phone"
+                        [ngClass]="{'ng-invalid ng-dirty': prffc.phone?.invalid && (prffc.phone?.dirty || prffc.phone?.touched)}"
+                    />
+                    @if (prffc.phone?.invalid && (prffc.phone?.dirty || prffc.phone?.touched) && prffc.phone?.hasError('required')){
+                        <p-message severity="error" variant="simple" size="small">Camp obligatoriu</p-message>                        
+                    }
+
+                    @if (prffc.phone?.invalid && (prffc.phone?.dirty || prffc.phone?.touched) && prffc.phone?.hasError('invalidRoMobile')){
+                        <p-message severity="error" variant="simple" size="small">Numar de telefon invalid</p-message>                        
+                    }
+
+
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Email:</label>
+                    <input pInputText [value]="profile()?.email ?? ''" [disabled]="true" fluid />
+                    <small class="text-slate-500">Pentru schimbarea emailului, contactează administratorul.</small>
+                </div>
+            </div>
+
+            @if (isBarber()) {
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Specialitati: (optional)</label>
+                    <p-multiselect
+                        [options]="comboBoxService.publicSpCombo()"
+                        formControlName="specialty_ids"
+                        optionLabel="name"
+                        placeholder="Alege specialitatile tale"
+                        [fluid]="true"
+                        [maxSelectedLabels]="20"
+                        display="chip"
+                        [filter]="false"
+                        [showToggleAll]="false"
+                    >
+                    </p-multiselect>
+                    <small class="text-slate-500">
+                        Sunt vizibile clienților la alegerea frizerului.
+                    </small>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Despre mine: (optional)</label>
+                    <textarea pTextarea formControlName="bio" rows="4" fluid
+                        placeholder="O scurtă descriere pe care o vor vedea clienții..."
+                    ></textarea>
+                    <div class="flex justify-between">
+                        <small class="text-slate-500">Maxim 500 de caractere.</small>
+                        <small class="text-slate-500">
+                            {{ (profileForm.get('bio')?.value ?? '').length }}/500
+                        </small>
+                    </div>
+                    @if (prffc.bio?.invalid && (prffc.bio?.dirty || prffc.bio?.touched) && prffc.bio?.hasError('maxlength')) {
+                        <p-message severity="error" variant="simple" size="small">Descrierea depășește 500 de caractere.</p-message>                        
+                    }
+                    @if (prffc.bio?.invalid && (prffc.bio?.dirty || prffc.bio?.touched) && prffc.bio?.hasError('containsTagsOrSriptingsOrLinksOrEmails')){
+                        <p-message severity="error" variant="simple" size="small">Campul "Descriere" nu trebuie sa contina link-uri, tag-uri HTML, elemente de scripting sau adrese de email</p-message>                        
+                    }
+
+                </div>
+                
+            }
+            <div class="flex justify-end">
+                <p-button type="submit" label="Salvează" icon="fa-solid fa-floppy-disk"
+                [loading]="savingProfile()" size="small" />
+            </div>
+        </form>
+        
+        
+    </p-card>
+        <p-card header="🔐 Schimbare Parola" class="max-w-xs">
+            <ng-template #title> 
+                <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">🔐 Schimbare Parola</h3>
+            </ng-template>
+            
+            <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Parola curentă:</label>
+                    <p-password formControlName="current_password" 
+                        [toggleMask]="true" 
+                        [feedback]="false" 
+                        fluid 
+                        autocomplete="current-password" 
+                    />
+                    @if (pfc.current_password.touched && pfc.current_password.hasError('required')) {
+                        <p-message severity="error" size="small">Camp obligatoriu</p-message>
+                    }
+                    @if (pfc.current_password.touched && pfc.current_password.hasError('notCurrentPassword')) {
+                        <p-message severity="error" size="small">Parola curentă este incorectă</p-message>
+                    }
+
+                </div>
+
+                <!-- <div class="grid grid-cols-2 gap-3"> -->
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-medium text-slate-600">Parolă nouă:</label>
+                        <p-password formControlName="new_password" 
+                            [toggleMask]="true" 
+                            promptLabel="Introdu o parolă" 
+                            weakLabel="Slabă" 
+                            mediumLabel="Medie" 
+                            strongLabel="Puternică"
+                            fluid 
+                            autocomplete="new-password"     
+                        />
+                    </div>
+                    @if (pfc.new_password.touched && pfc.new_password.hasError('required')) {
+                        <p-message severity="error" size="small">Camp obligatoriu</p-message>
+                    } @if (pfc.new_password?.invalid && (pfc.new_password?.dirty || pfc.new_password?.touched) && pfc.new_password?.hasError('passwordStrength')){
+                    <p-message severity="error" size="small">
+                        <div class="flex flex-col gap-y-1">
+                            Parola trebuie sa contina:
+                            <ul style="list-style-type: none; padding-left: 0; font-size: 14px;">
+                                <li [style.color]="pfc.new_password?.errors?.['passwordStrength'].hasValidLength ? 'green' : 'red'">
+                                    {{ pfc.new_password?.errors?.['passwordStrength'].hasValidLength ? '&#10003;' : '&#10005;' }}
+                                    Minim 10 caractere
+                                </li>
+                                <li [style.color]="pfc.new_password?.errors?.['passwordStrength'].hasUpperCase ? 'green' : 'red'">
+                                    {{ pfc.new_password?.errors?.['passwordStrength'].hasUpperCase ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o literă mare (A-Z)
+                                </li>
+                                <li [style.color]="pfc.new_password?.errors?.['passwordStrength'].hasLowerCase ? 'green' : 'red'">
+                                    {{ pfc.new_password?.errors?.['passwordStrength'].hasLowerCase ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o literă mică (a-z)                 
+                                </li>
+                                <li [style.color]="pfc.new_password?.errors?.['passwordStrength'].hasNumeric ? 'green' : 'red'">
+                                    {{ pfc.new_password?.errors?.['passwordStrength'].hasNumeric ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin o cifră (0-9)
+                                </li>
+                                <li [style.color]="pfc.new_password?.errors?.['passwordStrength'].hasSpecialChar ? 'green' : 'red'">
+                                    {{ pfc.new_password?.errors?.['passwordStrength'].hasSpecialChar ? '&#10003;' : '&#10005;' }}
+                                    Cel puțin un caracter special (ex: &#64;, #, $, !)
+                                </li>
+                            </ul>
+                        </div>
+                    </p-message>
+                    }
+
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-sm font-medium text-slate-600">Confirmă parola:</label>
+                        <p-password formControlName="confirm_password" 
+                            [toggleMask]="true" 
+                            [feedback]="false" 
+                            fluid 
+                            autocomplete="new-password" 
+                        />
+
+                        @if (pfc.confirm_password.touched && pfc.confirm_password.hasError('required')) {
+                            <p-message severity="error" size="small">Camp obligatoriu</p-message>
+                        }
+
+                        @if (pfc.confirm_password?.invalid && (pfc.confirm_password?.dirty || pfc.confirm_password?.touched) && pfc.confirm_password?.hasError('passwordMismatch')){
+                            <p-message severity="error" variant="simple" size="small">Parolele introduse nu coincid</p-message>                        
+                        }
+
+
+                    </div>
+                <!-- </div> -->
+
+                <div class="flex justify-end">
+                    <p-button type="submit" label="Schimbă parola" 
+                        severity="secondary" 
+                        size="small" 
+                        icon="fa-solid fa-key"
+                        [loading]="savingPassword()" 
+                    />
+                </div>
+            </form>
+            
+        </p-card>
+    
+</div>
+
+<!-- <div class="max-w-3xl mx-auto flex flex-col gap-6">
+
+    <h2 class="text-xl font-bold text-slate-700">Profilul meu</h2>
+    
+    <div class="p-6 rounded-lg border border-surface-200 bg-white">
+        <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">Date personale</h3>
+        <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" class="flex flex-col gap-4">
+            <div class="flex items-center gap-4">
+                @if (avatarPreview()) {
+                <img [src]="avatarPreview()" alt="Avatar" 
+                    class="w-20 h-20 rounded-full object-cover border" />
+                } @else {
+                <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center border">
+                    <i class="fa-solid fa-user text-slate-400 text-2xl"></i>
+                </div>
+                }
+                <p-fileUpload mode="basic" chooseLabel="Schimbă poza"
+                chooseIcon="fa-solid fa-camera"
+                accept="image/png,image/jpeg,image/webp"
+                [maxFileSize]="2000000" [auto]="true" [customUpload]="true"
+                (uploadHandler)="onAvatarSelected($event)"
+                [disabled]="uploadingAvatar()" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-600">Nume:</label>
+                <input pInputText formControlName="last_name" fluid />
+                </div>
+                <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-600">Prenume:</label>
+                <input pInputText formControlName="first_name" fluid />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-600">Telefon:</label>
+                <input pInputText formControlName="phone" fluid />
+                </div>
+                <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-600">Email:</label>
+                <input pInputText [value]="profile()?.email ?? ''" [disabled]="true" fluid />
+                <small class="text-slate-500">Pentru schimbarea emailului, contactează administratorul.</small>
+                </div>
+            </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Specializări:</label>
+                    <input pInputText formControlName="specialties" fluid 
+                            placeholder="ex: Tunsori clasice, Barbă, Fade" />
+                    <small class="text-slate-500">
+                        Separă specializările prin virgulă. Sunt vizibile clienților la alegerea frizerului.
+                    </small>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Despre mine:</label>
+                    <textarea pTextarea formControlName="bio" rows="4" fluid
+                        placeholder="O scurtă descriere pe care o vor vedea clienții..."
+                    ></textarea>
+                    <div class="flex justify-between">
+                        <small class="text-slate-500">Maxim 500 de caractere.</small>
+                        <small class="text-slate-500">
+                        {{ (profileForm.get('bio')?.value ?? '').length }}/500
+                        </small>
+                    </div>
+                    @if (profileForm.get('bio')?.hasError('maxlength')) {
+                        <small class="text-red-500">Descrierea depășește 500 de caractere.</small>
+                    }
+                </div>
+            <div class="flex justify-end">
+                <p-button type="submit" label="Salvează" icon="fa-solid fa-floppy-disk"
+                [loading]="savingProfile()" size="small" />
+            </div>
+        </form>
+    </div>
+
+    <div class="p-6 rounded-lg border border-surface-200 bg-white">
+        <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">Schimbare parolă</h3>
+        <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-slate-600">Parola curentă:</label>
+                <p-password formControlName="current_password" 
+                    [toggleMask]="true" 
+                    [feedback]="false" 
+                    fluid 
+                    autocomplete="current-password" 
+                />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Parolă nouă:</label>
+                    <p-password formControlName="new_password" 
+                        [toggleMask]="true" 
+                        promptLabel="Introdu o parolă" 
+                        weakLabel="Slabă" 
+                        mediumLabel="Medie" 
+                        strongLabel="Puternică"
+                        fluid 
+                        autocomplete="new-password"     
+                    />
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium text-slate-600">Confirmă parola:</label>
+                    <p-password formControlName="confirm_password" 
+                        [toggleMask]="true" 
+                        [feedback]="false" 
+                        fluid 
+                        autocomplete="new-password" 
+                    />
+                    @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirm_password')?.touched) {
+                        <small class="text-red-500">Parolele nu coincid.</small>
+                    }
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <p-button type="submit" label="Schimbă parola" 
+                    severity="secondary" 
+                    size="small" 
+                    icon="fa-solid fa-key"
+                    [loading]="savingPassword()" 
+                />
+            </div>
+        </form>
+    </div>
+
+    <div class="p-6 rounded-lg border border-surface-200 bg-white">
+        <h3 class="font-bold text-slate-700 mb-4 pb-2 border-b">Informații cont</h3>
+        <div class="flex flex-col gap-3 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-slate-600 w-32">Rating:</span>
+                <app-star-rating-display 
+                    [rating]="profile()?.rating_avg ?? 0"
+                    [reviewCount]="profile()?.rating_count ?? 0" 
+                />
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-600 w-32">Status:</span>
+                <p-tag [value]="profile()?.is_active ? 'Activ' : 'Inactiv'"
+                    [severity]="profile()?.is_active ? 'success' : 'danger'" 
+                />
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-600 w-32">Membru din:</span>
+                <span>{{ profile()?.created_at }}</span>
+            </div>
+        </div>
+
+        <h4 class="font-semibold text-slate-700 mt-6 mb-2">Program de lucru</h4>
+        @if ((profile()?.schedule ?? []).length === 0) {
+            <p class="text-sm text-slate-500">Nu ai încă un program setat.</p>
+        } @else {
+        <div class="flex flex-col gap-1 text-sm">
+            @for (day of profile()?.schedule ?? []; track day.day_of_week) {
+            <div class="flex gap-2">
+                <span class="text-slate-600 w-32">{{ dayNames[day.day_of_week] }}:</span>
+                <span>{{ day.start_hour }} – {{ day.end_hour }}</span>
+            </div>
+            }
+        </div>
+        }
+        <small class="text-slate-500 block mt-3">
+            Programul se modifică de către administrator.
+        </small>
+    </div>
+
+</div> -->

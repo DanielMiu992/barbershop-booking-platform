@@ -1,0 +1,9 @@
+<div class="flex gap-0.5 items-center" [pTooltip]="tooltipText()" tooltipPosition="bottom">
+  @for (position of starPositions(); track position) {
+    <i
+      [class]="starClass(position)"
+      [style.color]="color()"
+      [style.fontSize]="size()"
+    ></i>
+  }
+</div> 

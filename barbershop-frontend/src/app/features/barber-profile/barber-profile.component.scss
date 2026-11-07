@@ -1,0 +1,19 @@
+:host ::ng-deep .p-multiselect-label:has(.p-chip) {
+  gap: 0.5rem
+}
+
+:host ::ng-deep .p-chip {
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+}
+
+:host ::ng-deep .p-multiselect-chip-item  {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+:host ::ng-deep .p-chip-remove-icon {
+    color: var(--p-primary-contrast-color);
+}
+// --p-primary-color
+//--p-primary-contrast-color

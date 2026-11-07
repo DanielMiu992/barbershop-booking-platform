@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+.angular/
+*.tsbuildinfo
+
+# Environment variables (secrets) - keep only the example file
+.env
+.env.*
+!.env.example
+
+# Prisma generated client (rebuilt with `npx prisma generate`)
+barbershop-backend/src/generated/
+
+# User uploads (avatars)
+barbershop-backend/uploads/
+
+# Local backups
+*_bkp.json
+
+# Editor / OS / logs
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

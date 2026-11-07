@@ -1,0 +1,257 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-card header="💈 Management Echipă Frizeri">
+    <ng-template #title> 
+        <p class="mt-1 header-card uppercase font-semibold text-xl text-slate-900" >💈 Management Echipă Frizeri</p>
+    </ng-template>
+
+    <ng-template #subtitle> 
+        <div class="flex flex-row justify-between items-center">
+        <p class="text-slate-500 m-0">Administrează membrii echipei din salon, profilurile acestora și disponibilitatea lor publică.</p>
+            <p-button (onClick)="openEditDialog()" label="Frizer Nou" 
+                icon="fa-solid fa-plus" 
+                severity="success" 
+                size="small"
+            ></p-button>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-row gap-1 mb-6 bg-slate-50 p-4 border border-solid border-slate-200 border-round items-end justify-between">
+        <div class="flex flex-row flex-wrap gap-2 items-center">
+            @if(filtersAreApplied()){
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Filtre active:</span>
+                <div class="flex flex-row gap-2 flex-wrap items-center">
+                    @if(appliedfilters.status){
+                        <p-tag [value]="'Status: ' + appliedfilters.status.label" 
+                            severity="info" 
+                            styleClass="statusTag"
+                        ></p-tag>
+                    }
+
+                </div>
+            }
+        </div>
+        <div class="flex flex-row gap-1">
+            <p-button (onClick)="downloadPdfReport()" 
+                icon="pi pi-file-check"
+                severity="success"
+                size="small"
+                pTooltip="Descarcă raport PDF"
+                tooltipPosition="bottom"
+            ></p-button>
+        
+            <p-button (onClick)="displayFilterDialog.set(true)" label="Filtrare avansata" 
+                icon="fa-solid fa-filter" 
+                [severity]="filtersAreApplied() ? 'success' : 'info'" 
+                size="small"
+            />
+            <p-button (onClick)="clearFilters(dt)" label="Reseteaza filtrele"
+                icon="fa-solid fa-filter-circle-xmark" 
+                severity="danger" 
+                size="small"
+            />
+            <p-iconfield iconPosition="left">
+                <p-inputicon class="pi pi-search"></p-inputicon>
+                <input type="text" pInputText pSize="small" placeholder="Caută..." [formControl]="$any(filterForm).get('barber_name')" />
+            </p-iconfield>
+
+        </div>
+    </div>    
+
+    <p-table 
+        #dt
+        [value]="adminBarbersService.adminBarbers()" 
+        [lazy]="true"
+        (onLazyLoad)="loadBarbersLazy($event)"
+        [totalRecords]="totalRecords()"
+        [loading]="loading()"
+        [rows]="5" 
+        [paginator]="true" 
+        stripedRows
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Inregistrarile de la {first} la {last} din totalul de {totalRecords}"
+
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>#</th>
+                <th style="width: 80px;"></th>
+                <th pSortableColumn="first_name">
+                    Nume Frizer  <p-sortIcon field="first_name" id="hd" />
+                </th>
+                
+                <th pSortableColumn="email">
+                    Email <p-sortIcon field="email" id="hd" />
+                </th>
+                <th pSortableColumn="phone">
+                    Telefon <p-sortIcon field="phone" id="hd" />
+                </th>
+                <th pSortableColumn="rating_avg">
+                    Rating <p-sortIcon field="rating_avg" id="hd" />
+                </th>
+                <th pSortableColumn="is_active">
+                    Status <p-sortIcon field="is_active" id="hd" />
+                </th>
+                <th class="w-32 text-center">Acțiuni</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-barber let-rowIndex="rowIndex">
+            <tr>
+                <td class="text-sm font-semibold">{{rowIndex + 1}}</td>
+                <td>
+                    @if(barber.avatar_url){
+                    <p-avatar 
+                        [image]="barber.avatar_url" 
+                        shape="circle" 
+                        size="normal"
+                        [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                    </p-avatar>
+
+                    }@else{
+                    <p-avatar 
+                        icon="pi pi-user"
+                        shape="circle" 
+                        size="normal"
+                        [style]="{ 'background-color': '#e2e8f0', 'color': '#1e293b' }">
+                    </p-avatar>
+
+                    }
+                </td>
+
+                <td class="font-semibold">{{ barber.first_name }} {{ barber.last_name }}</td>
+
+                <td>{{ barber.email }}</td>
+                <td>{{ barber.phone }}</td>
+
+                <td>
+                    @if(barber.rating_avg){
+                    <!-- <p-rating [(ngModel)]="barber.rating_avg" [readonly]="true"
+                        [stars]="5" 
+                        [iconOnStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default'}"
+                        [iconOffStyle]="{ color: 'var(--p-button-text-warn-color)', 'cursor': 'default' }"
+                        iconOnClass="fa-solid fa-star"
+                        iconOffClass="fa-regular fa-star"
+                        [pTooltip]="barber.rating_avg + ' (' + barber.rating_count + ' recenzii)'" 
+                        tooltipPosition="bottom"
+                    /> -->
+
+                    <app-star-rating-display
+                        [rating]="barber.rating_avg ?? 0"
+                        [reviewCount]="barber.rating_count ?? null"
+                        [size]="'1rem'"
+                    ></app-star-rating-display>
+
+                    
+                    }@else {
+                    -
+                    }
+
+                </td>
+
+                <td>
+                    <p-tag 
+                        [value]="barber.is_active ? 'activ' : 'inactiv'" 
+                        [severity]="barber.is_active ? 'success' : 'danger'"
+                        [style]="{ background: getBackground(barber.is_active), color: 'var(--p-button-primary-color)', weight: 'var(--p-button-label-font-weight)' }"
+                        styleClass="statusTag text-xs"
+                    ></p-tag>
+                </td>
+                <td>
+                    <div class="flex flex-row gap-2 justify-center">
+                        <p-button (onClick)="openEditDialog(barber)"
+                            icon="fa-regular fa-pen-to-square" 
+                            severity="primary" 
+                            size="small"
+                            [text]="true" 
+                            pTooltip="Editează profilul"
+                            tooltipPosition="bottom"                             
+                            styleClass="!p-0 !w-6 !h-6"
+                        ></p-button>
+                        <p-button (onClick)="openScheduleDialog(barber)"
+                            icon="fa-regular fa-calendar-days" 
+                            severity="primary" 
+                            size="small"
+                            [text]="true" 
+                            pTooltip="Defineste program de lucru"
+                            tooltipPosition="bottom" 
+                            styleClass="!p-0 !w-6 !h-6"
+                        ></p-button>
+
+                        <p-button (onClick)="toggleStatus(barber, dt)"
+                            [icon]="barber.is_active ? 'fa-solid fa-user-minus' : 'fa-solid fa-user-plus'" 
+                            [severity]="barber.is_active ? 'warn' : 'success'" 
+                            size="small"
+                            [text]="true" 
+                            [pTooltip]="barber.is_active ? 'Dezactivează' : 'Activează'"
+                            tooltipPosition="bottom" 
+                            styleClass="!p-0 !w-6 !h-6"
+                        ></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center p-8">
+                    Nu s-a găsit niciun frizer în baza de date.
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+  </p-card>
+
+<p-dialog header="Filtrare avansata" 
+  [(visible)]="displayFilterDialog" 
+  [modal]="true" 
+  [style]="{ width: '350px', backgroundColor: 'rgb(248 250 252 / var(--tw-bg-opacity, 1))' }" 
+  [draggable]="false" 
+  [resizable]="false"
+>
+    <p-card styleClass="!overflow-visible">
+        <form [formGroup]="filterForm">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-slate-700">Status </label>
+
+                    <p-select formControlName="status" placeholder="Selectează status"
+                        [options]="statusOptions" 
+                        optionLabel="label" 
+                        size="small"
+                        [fluid]="true" 
+                        [appendTo]="'body'"
+                    ></p-select>
+                </div>
+            </div>
+        </form>
+    </p-card>
+    <ng-template #footer>
+        <p-button (onClick)="displayFilterDialog.set(false);" label="Inchide" 
+            severity="secondary" 
+            size="small"
+        ></p-button>
+        <p-button (onClick)="applyFilters(dt)" label="Aplica filtrele" 
+            severity="success"             
+            size="small"
+        ></p-button>
+
+    </ng-template>
+
+</p-dialog>
+
+<app-add-barber-dialog
+    #addBarberDialog
+    [(visible)]="displayDialog"
+    [isEditModeDialog]="isEditMode()"
+    (onSaved)="dt.reset(); loading.set(false)"
+    (onCancel)="loading.set(false)"
+></app-add-barber-dialog>
+
+<app-set-schedule-dialog
+    #setScheduleDialog
+    [(visibleScheduleDialog)]="displayScheduleDialog"
+    [barberName]="selectedBarberForSchedule"
+    (onSavedSchedule)="dt.reset(); loading.set(false)"
+    (onCancelSchedule)="loading.set(false)"
+></app-set-schedule-dialog>

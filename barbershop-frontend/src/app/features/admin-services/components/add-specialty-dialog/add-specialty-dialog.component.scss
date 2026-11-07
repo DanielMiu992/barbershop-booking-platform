@@ -1,0 +1,15 @@
+:host ::ng-deep #toggle-sp .p-toggleswitch-slider{
+    background: var(--p-red-300);
+}
+
+:host ::ng-deep #toggle-sp .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover) .p-toggleswitch-slider {
+    background: var(--p-red-500);
+}
+
+:host ::ng-deep #toggle-sp .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider{
+    background: var(--p-primary-color);
+}
+
+:host ::ng-deep #toggle-sp .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked .p-toggleswitch-slider{
+    background: var(--p-primary-hover-color);
+}

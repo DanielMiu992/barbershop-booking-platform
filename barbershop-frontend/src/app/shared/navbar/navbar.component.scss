@@ -1,0 +1,44 @@
+:host ::ng-deep {
+    .p-menubar-end {
+        margin-left: 0!important;
+        
+    }
+
+    .p-menubar {
+        // Selectează elementul părinte <li> care conține link-ul activ
+        .p-menubar-item:has(.is-route-active) {
+        
+        // Aplică stilurile specifice pe elementul de tip link din interior
+        .p-menubar-item-link {
+            background-color: #f1f5f9 !important; // Culorile corespund clasei bg-slate-800 din Tailwind
+            border-radius: 6px;                        // rounded-md
+        }
+
+        }
+    }
+    
+//     .p-menubar-item-content{
+//         display: flex!important;
+//       align-items: center!important;
+//       justify-content: center!important;
+//       gap: 0.5rem!important; // Spațiere elegantă între butoanele din meniu
+
+//     }
+
+//     .p-menubar-root-list {
+//         display: flex!important;
+//       align-items: center!important;
+//       justify-content: center!important;
+//       gap: 0.5rem!important; // Spațiere elegantă între butoanele din meniu
+//     }
+//   .p-menubar {
+//     // Forțează containerul de link-uri (centru) să ocupe spațiul disponibil și să se centreze
+//     .p-menubar-root-list, .p-menubar-list {
+//       margin: 0 auto;
+//       display: flex;
+//       align-items: center;
+//       justify-content: center!important;
+//       gap: 0.5rem; // Spațiere elegantă între butoanele din meniu
+//     }
+//   }
+}
