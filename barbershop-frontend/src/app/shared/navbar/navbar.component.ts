@@ -76,7 +76,8 @@ export class NavbarComponent {
       routerLinkActiveOptions: "{ exact: true }"
     },
     {
-      label: 'Management Echipă Frizeri',
+      label: 'Management Frizeri',
+      //label: 'Management Echipă Frizeri',
       // icon: 'pi pi-users',
       icon: 'fa-solid fa-users',
       routerLink: '/admin-barbers',

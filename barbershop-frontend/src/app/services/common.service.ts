@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GET_APPOINTMENT_CANCEL_INFO_RESPONSE, GET_APPOINTMENT_DETAILS_RESPONSE, GET_BARBER_DETAILS_RESPONSE, SET_APPOINTMENT_COMPLETED_RESPONSE, SET_CANCEL_APPOINTMENT_RESPONSE } from '../modules/common.interfaces';
+import { BARBERS_SHOWCASE_RESPONSE, GET_APPOINTMENT_CANCEL_INFO_RESPONSE, GET_APPOINTMENT_DETAILS_RESPONSE, GET_BARBER_DETAILS_RESPONSE, SET_APPOINTMENT_COMPLETED_RESPONSE, SET_CANCEL_APPOINTMENT_RESPONSE } from '../modules/common.interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +50,11 @@ export class CommonService {
       params: queryParams
     });
   }
+
+  loadBarbersShowcase(): Observable<BARBERS_SHOWCASE_RESPONSE> {
+    return this.http.get<BARBERS_SHOWCASE_RESPONSE>(`${this.apiUrl}/barbers-showcase`);
+  }
+
 
 
 }

@@ -8,3 +8,8 @@ export interface BARBER_SHOWCASE_ITEM {
   specialties: string[];
   completed_appointments: number;
 }
+
+export interface BARBERS_SHOWCASE_RESPONSE {
+  result: BARBER_SHOWCASE_ITEM[];
+  success: boolean;
+}

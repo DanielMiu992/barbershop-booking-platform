@@ -7,7 +7,7 @@ import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 // import { BarberPerson, BarberPersonCombo, BarberService, BarberServiceItem, BarberServiceItemCombo } from '../../services/barber.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputText } from 'primeng/inputtext';
 //import { Toast } from 'primeng/toast'; 
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -62,11 +62,13 @@ import { Avatar } from 'primeng/avatar';
   templateUrl: './booking.component.html',
   styleUrl: './booking.component.scss'
 })
+
 export class BookingComponent implements OnInit {
 
   comboBoxService = inject(ComboBoxService)
   authService = inject(AuthService);
   bookingService = inject(BookingService);
+  private route = inject(ActivatedRoute);
 
   private messageService = inject(MessageService);
 
@@ -87,7 +89,7 @@ export class BookingComponent implements OnInit {
 
   minDate: Date = new Date(); // ziua de azi
 
-
+  
 
   //readonly stepperRef = viewChild<Stepper>('stepper');
   readonly stepperRef = viewChild.required<Stepper>('stepper'); 
@@ -236,6 +238,18 @@ export class BookingComponent implements OnInit {
 
     this.comboBoxService.loadBarbersCombo();
     this.comboBoxService.loadServicesCombo();
+
+    //barber_id din răspuns îți permite ca butonul din card să preselecteze frizerul în formularul de rezervare:
+    const barberId = this.route.snapshot.queryParamMap.get('barberId');
+
+    if (barberId) {
+      const barber = this.comboBoxService.publicBarbersCombo()
+        .find(b => b.id === Number(barberId));
+      if (barber) {
+        this.s3.patchValue({ barber_id: barber });
+      }
+    }
+
 
   }
 
